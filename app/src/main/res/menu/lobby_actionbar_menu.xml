@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- "Buy Pro", should appear as action button if possible -->
+    <item
+        android:id="@+id/action_buy_pro"
+        android:icon="@drawable/baseline_lock_open_24"
+        android:title="@string/action_buy_pro"
+        app:showAsAction="ifRoom" />
+
+    <!-- "Share", should appear as action button if possible -->
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/baseline_share_24"
+        android:title="@string/action_share"
+        app:showAsAction="ifRoom" />
+
+    <!-- "Share", should appear as action button if possible -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/baseline_search_24"
+        android:title="@string/action_search"
+        app:showAsAction="ifRoom" />
+
+</menu>
