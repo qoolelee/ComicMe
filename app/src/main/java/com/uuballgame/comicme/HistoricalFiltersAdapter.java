@@ -1,6 +1,7 @@
 package com.uuballgame.comicme;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import java.util.List;
 
 public class HistoricalFiltersAdapter extends RecyclerView.Adapter<HistoricalFiltersAdapter.ComicViewHolder> {
     public List<ComicFilter> comicFilters;
     public Context context;
-
 
     // inner ViewHolder
     class ComicViewHolder extends RecyclerView.ViewHolder{
@@ -73,4 +74,28 @@ public class HistoricalFiltersAdapter extends RecyclerView.Adapter<HistoricalFil
     public int getItemCount() {
         return comicFilters.size();
     }
+
+    public void removeItemAtPosition(int position) {
+        Constants.COMIC_FILTERS_HISTORICAL.remove(position);
+
+        comicFilters.remove(position);
+        notifyItemRemoved(position);
+
+        // to Json string
+        String str = new Gson().toJson(Constants.COMIC_FILTERS_HISTORICAL);
+        // save to preferences
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.comic_me_app), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(context.getString(R.string.historical_filters), str);
+        editor.apply();
+
+    }
+
+    public void itemsChanged() {
+        comicFilters.clear();
+        comicFilters.addAll(Constants.COMIC_FILTERS_HISTORICAL);
+        notifyDataSetChanged();
+    }
+
+
 }

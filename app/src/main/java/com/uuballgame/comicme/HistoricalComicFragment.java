@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -90,10 +93,13 @@ public class HistoricalComicFragment extends Fragment {
         // set layout manager to position the items
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-
+        // enable recycler item view enableSwipeToDeleteAndUndo();
+        enableSwipeToDeleteAndUndo(filterAdapter, recyclerView);
 
         return view;
     }
+
+
 
     @Override
     public void onResume() {
@@ -115,9 +121,25 @@ public class HistoricalComicFragment extends Fragment {
             Constants.COMIC_FILTERS_HISTORICAL = gson.fromJson(str, typeListOfComicFilter);
 
             // notify filter_datas changed
-            filterAdapter.comicFilters.clear();
-            filterAdapter.comicFilters.addAll(Constants.COMIC_FILTERS_HISTORICAL);
-            filterAdapter.notifyDataSetChanged();
+            filterAdapter.itemsChanged();
         }
     }
+
+    private void enableSwipeToDeleteAndUndo(HistoricalFiltersAdapter filterAdapter, RecyclerView recyclerView) {
+
+        SwipeToDeleteCallback swipeToDeleteCallback = new SwipeToDeleteCallback(getContext()) {
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+
+                    final int position = viewHolder.getAdapterPosition();
+
+                    // remove item at position
+                    filterAdapter.removeItemAtPosition(position);
+                }
+        };
+
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeToDeleteCallback);
+        itemTouchhelper.attachToRecyclerView(recyclerView);
+    }
+
 }
