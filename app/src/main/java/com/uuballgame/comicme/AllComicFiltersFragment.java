@@ -156,6 +156,7 @@ public class AllComicFiltersFragment extends Fragment {
         Constants.COMIC_FILTERS_LIST = gson.fromJson(response, typeListOfComicFilter);
 
         // notify filter_datas changed
+        filterAdapter.comicFilters.clear();
         filterAdapter.comicFilters.addAll(Constants.COMIC_FILTERS_LIST);
         filterAdapter.notifyDataSetChanged();
     }

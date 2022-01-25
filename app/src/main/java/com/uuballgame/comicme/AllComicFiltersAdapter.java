@@ -1,6 +1,7 @@
 package com.uuballgame.comicme;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class AllComicFiltersAdapter extends RecyclerView.Adapter<AllComicFiltersAdapter.ComicViewHolder>{
     public List<ComicFilter> comicFilters;
@@ -39,6 +42,9 @@ public class AllComicFiltersAdapter extends RecyclerView.Adapter<AllComicFilters
 
                     // add to HistoricalComicFiltersAdapter
                     addToHistoricalList(comicFilter);
+
+                    // start detailed activity
+                    startDetailedActivity(comicFilter);
                 }
             });
         }
@@ -66,8 +72,6 @@ public class AllComicFiltersAdapter extends RecyclerView.Adapter<AllComicFilters
             editor.putString(context.getString(R.string.historical_filters), str);
             editor.apply();
 
-            // notify updated
-
         }
 
     }
@@ -92,8 +96,11 @@ public class AllComicFiltersAdapter extends RecyclerView.Adapter<AllComicFilters
         ComicFilter comicFilter = comicFilters.get(position);
 
         // Set item views according to data model
+        int radius = 30;
+        int margin = 10;
         Glide.with(context)
                 .load(comicFilter.imageUrl)
+                .transform(new RoundedCornersTransformation(radius, margin))
                 .into(holder.comicImageView);
         holder.comicLabel.setText(comicFilter.name);
     }
@@ -101,6 +108,12 @@ public class AllComicFiltersAdapter extends RecyclerView.Adapter<AllComicFilters
     @Override
     public int getItemCount() {
         return comicFilters.size();
+    }
+
+    private void startDetailedActivity(ComicFilter comicFilter) {
+        Intent intent = new Intent((LobbyActivity)context, DetailedActivity.class);
+        intent.putExtra("ComicFilter", comicFilter);
+        context.startActivity(intent);
     }
 
 }

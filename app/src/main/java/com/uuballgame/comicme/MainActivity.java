@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
             Alert(getResources().getString(R.string.alert_no_internet));
         }
 
-
-
     }
 
     private void fullScreen() {
