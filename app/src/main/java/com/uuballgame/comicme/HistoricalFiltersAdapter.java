@@ -1,6 +1,7 @@
 package com.uuballgame.comicme;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,9 +36,10 @@ public class HistoricalFiltersAdapter extends RecyclerView.Adapter<HistoricalFil
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    //ComicFilter comicFilter = comicFilters.get(position);
+                    ComicFilter comicFilter = comicFilters.get(position);
 
-                    // add to HistoricalComicFiltersAdapter
+                   // start detailed activity
+                    startDetailedActivity(comicFilter);
 
                 }
             });
@@ -97,5 +99,9 @@ public class HistoricalFiltersAdapter extends RecyclerView.Adapter<HistoricalFil
         notifyDataSetChanged();
     }
 
-
+    private void startDetailedActivity(ComicFilter comicFilter) {
+        Intent intent = new Intent((LobbyActivity)context, DetailedActivity.class);
+        intent.putExtra("ComicFilter", comicFilter);
+        context.startActivity(intent);
+    }
 }

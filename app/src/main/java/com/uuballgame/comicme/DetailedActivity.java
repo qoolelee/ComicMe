@@ -4,9 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,6 +48,23 @@ public class DetailedActivity extends AppCompatActivity {
                 .transform(new RoundedCornersTransformation(radius, margin))
                 .centerCrop()
                 .into(imageView);
+
+        // button listener
+        Button button = findViewById(R.id.detailed_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startPictureCollectionActivity();
+            }
+        });
+    }
+
+    private void startPictureCollectionActivity() {
+        Intent intent = new Intent(this, PictureCollectionActivity.class);
+        intent.putExtra("ComicFilter", comicFilter);
+        startActivity(intent);
+
+        finish();
     }
 
     // this event will enable the back

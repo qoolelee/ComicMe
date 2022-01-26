@@ -20,4 +20,7 @@
     <string name="comic_me_app">comic_me_app</string>
     <string name="detailed_pick_an_pic">Please pick a picture</string>
     <string name="input_picture_to_comic">Select a picture</string>
+    <string name="picture_album">Album</string>
+    <string name="picture_collection_camera">Camera</string>
+    <string name="picture_collection_gallery">Gallery</string>
 </resources>

@@ -26,6 +26,9 @@
         android:theme="@style/Theme.ComicMe"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".PictureCollectionActivity"
+            android:exported="false" />
+        <activity
             android:name=".DetailedActivity"
             android:exported="false" />
         <activity
