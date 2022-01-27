@@ -12,4 +12,5 @@ public class Constants {
 
     public static List<ComicFilter> COMIC_FILTERS_LIST = new ArrayList<>();
     public static List<ComicFilter> COMIC_FILTERS_HISTORICAL = new ArrayList<>();
+    public static List<ComicSourceImage> COMIC_SOURCE_IMAGE_LIST = new ArrayList<>();
 }
