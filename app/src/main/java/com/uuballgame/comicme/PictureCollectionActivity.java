@@ -50,7 +50,7 @@ public class PictureCollectionActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.picture_collection_recyclerview);
 
         // prepare data for adapter
-        int numberOfColumns = 6;
+        int numberOfColumns = Constants.calculateNoOfColumns(this, 200);
         recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         List<ComicSourceImage> comicSourceImages = Constants.COMIC_SOURCE_IMAGE_LIST;

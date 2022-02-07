@@ -50,11 +50,13 @@ public class ComicSourcePicturesAdapter extends RecyclerView.Adapter<ComicSource
 
     @Override
     public void onBindViewHolder(@NonNull ComicSourcePicturesAdapter.PicViewHolder holder, int position) {
+        ComicSourceImage comicSourceImage = comicSourceImages.get(position);
 
+        holder.picImageView.setImageBitmap(comicSourceImage.thumbnailBitmap);
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return comicSourceImages.size();
     }
 }
