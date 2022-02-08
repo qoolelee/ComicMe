@@ -1,6 +1,7 @@
 package com.uuballgame.comicme;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,8 @@ public class ComicSourcePicturesAdapter extends RecyclerView.Adapter<ComicSource
         }
     }
 
-    public ComicSourcePicturesAdapter(List<ComicSourceImage> comicSourceImages) {
+    public ComicSourcePicturesAdapter(Context context, List<ComicSourceImage> comicSourceImages) {
+        this.context = context;
         this.comicSourceImages = comicSourceImages;
     }
 
@@ -52,7 +54,8 @@ public class ComicSourcePicturesAdapter extends RecyclerView.Adapter<ComicSource
     public void onBindViewHolder(@NonNull ComicSourcePicturesAdapter.PicViewHolder holder, int position) {
         ComicSourceImage comicSourceImage = comicSourceImages.get(position);
 
-        holder.picImageView.setImageBitmap(comicSourceImage.thumbnailBitmap);
+        Bitmap bitmap = Constants.convert(comicSourceImage.thumbnailBitmapBase64);
+        holder.picImageView.setImageBitmap(bitmap);
     }
 
     @Override

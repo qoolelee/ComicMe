@@ -4,11 +4,11 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 
 public class ComicSourceImage {
-    public Bitmap thumbnailBitmap;
+    public String thumbnailBitmapBase64;
     public Uri bitmap;
 
-    public ComicSourceImage(Bitmap thumbnailBitmap, Uri bitmap){
-        this.thumbnailBitmap = thumbnailBitmap;
+    public ComicSourceImage(String thumbnailBitmapStr, Uri bitmap){
+        this.thumbnailBitmapBase64 = thumbnailBitmapStr;
         this.bitmap = bitmap;
     }
 }
