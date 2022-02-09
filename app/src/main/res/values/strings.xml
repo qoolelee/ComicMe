@@ -23,4 +23,6 @@
     <string name="picture_album">Album</string>
     <string name="picture_collection_camera">Camera</string>
     <string name="picture_collection_gallery">Gallery</string>
+    <string name="image_detailed_title">Place face inside the frame</string>
+    <string name="image_detailed_confirm">OK</string>
 </resources>

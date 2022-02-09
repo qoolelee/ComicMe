@@ -3,12 +3,14 @@ package com.uuballgame.comicme;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
-public class ComicSourceImage {
-    public String thumbnailBitmapBase64;
-    public Uri bitmap;
+import java.io.Serializable;
 
-    public ComicSourceImage(String thumbnailBitmapStr, Uri bitmap){
+public class ComicSourceImage implements Serializable {
+    public String thumbnailBitmapBase64;
+    public String photoPath;
+
+    public ComicSourceImage(String thumbnailBitmapStr, String photoPath){
         this.thumbnailBitmapBase64 = thumbnailBitmapStr;
-        this.bitmap = bitmap;
+        this.photoPath = photoPath;
     }
 }

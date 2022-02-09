@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +44,8 @@ public class PictureCollectionActivity extends AppCompatActivity {
 
     private ComicFilter comicFilter;
     String currentPhotoPath;
+    List<ComicSourceImage> comicSourceImages;
+    ComicSourcePicturesAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,17 +62,17 @@ public class PictureCollectionActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // read in data rom preference
-        List<ComicSourceImage> comicSourceImages = getSavedComicSourceImages();
+        comicSourceImages = getSavedComicSourceImages();
 
         // find recycler view in fragment
         RecyclerView recyclerView = findViewById(R.id.picture_collection_recyclerview);
 
         // prepare data for adapter
-        int numberOfColumns = Constants.calculateNoOfColumns(this, 200);
+        int numberOfColumns = Constants.calculateNoOfColumns(this, 100);
         recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         // Create the View holder adapter
-        ComicSourcePicturesAdapter adapter = new ComicSourcePicturesAdapter(this, comicSourceImages);
+        adapter = new ComicSourcePicturesAdapter(this, comicSourceImages, comicFilter);
         // attach adapter to recycler view
         recyclerView.setAdapter(adapter);
 
@@ -125,7 +128,7 @@ public class PictureCollectionActivity extends AppCompatActivity {
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.uuballgame.comicme.fileprovider",
+                        "com.uuballgame.comicme",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -168,12 +171,49 @@ public class PictureCollectionActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            if(photo != null){
-                String comicSourceThumbnailBase64 = Constants.convert(photo);
-                Log.i("HERE!------->", comicSourceThumbnailBase64);
-            }
+            // read back the image file and scale it to thumbnail
+            Bitmap scaledBitmap = getScaledBitmap(currentPhotoPath);
+            ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), currentPhotoPath);
+
+            // adapter changed
+            comicSourceImages.add(comicSourceImage);
+            adapter.comicSourceImages = comicSourceImages;
+            adapter.notifyDataSetChanged();
+
+            // to Json string
+            String str = new Gson().toJson(comicSourceImages);
+            // save to preference
+            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.comic_me_app), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("comic_source_images", str);
+            editor.apply();
         }
+    }
+
+    private Bitmap getScaledBitmap(String currentPhotoPath) {
+        // Get the dimensions of the View
+        int targetW = 100;
+        int targetH = targetW;
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.max(1, Math.min(photoW/targetW, photoH/targetH));
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+        return  bitmap;
     }
 
     private List<ComicSourceImage> getSavedComicSourceImages() {

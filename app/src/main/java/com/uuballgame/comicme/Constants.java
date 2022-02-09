@@ -4,6 +4,7 @@ package com.uuballgame.comicme;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 
@@ -19,6 +20,7 @@ public class Constants {
 
     public static List<ComicFilter> COMIC_FILTERS_LIST = new ArrayList<>();
     public static List<ComicFilter> COMIC_FILTERS_HISTORICAL = new ArrayList<>();
+    public static List<ComicSourceImage> COMIC_SOURCE_IMAGES_LIST = new ArrayList<>();
 
     public static int calculateNoOfColumns(Context context, float columnWidthDp) { // For example columnWidthdp=180
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -43,5 +45,14 @@ public class Constants {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
 
         return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
+    }
+
+    public static Bitmap rotateBmap(Bitmap bitmapOrg, int degrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmapOrg, bitmapOrg.getHeight(), bitmapOrg.getWidth(), true);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
+        return rotatedBitmap;
     }
 }
