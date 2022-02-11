@@ -4,6 +4,7 @@ package com.uuballgame.comicme;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -47,12 +48,32 @@ public class Constants {
         return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
     }
 
-    public static Bitmap rotateBmap(Bitmap bitmapOrg, int degrees) {
+    public static Bitmap rotateBmap(Bitmap source, int angle) {
         Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmapOrg, bitmapOrg.getHeight(), bitmapOrg.getWidth(), true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
 
-        return rotatedBitmap;
+    public static Bitmap getScaledBitmap(String currentPhotoPath, int targetW, int targetH) {
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.max(1, Math.min(photoW/targetW, photoH/targetH));
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+        return  bitmap;
     }
 }

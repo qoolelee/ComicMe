@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
-public class DetailedActivity extends AppCompatActivity {
+public class ComicFilterDetailActivity extends AppCompatActivity {
     private ComicFilter comicFilter;
 
     @Override

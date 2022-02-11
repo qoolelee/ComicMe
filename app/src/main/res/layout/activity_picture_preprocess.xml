@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context=".ImageDetailedActivity">
+    tools:context=".PicturePreprocessActivity">
 
     <Button
         android:id="@+id/image_detailed_confirm_button"
@@ -20,7 +20,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+    <com.cuneytayyildiz.gestureimageview.GestureImageView
         android:id="@+id/image_detailed_picture_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -28,6 +28,10 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toTopOf="@id/image_detailed_confirm_button"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars"
+        app:gi_min_scale="0.1"
+        app:gi_max_scale="10.0"
+        app:gi_strict="false" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

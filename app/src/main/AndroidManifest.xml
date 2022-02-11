@@ -39,13 +39,13 @@
         </provider>
 
         <activity
-            android:name=".ImageDetailedActivity"
+            android:name=".PicturePreprocessActivity"
             android:exported="false" />
         <activity
             android:name=".PictureCollectionActivity"
             android:exported="false" />
         <activity
-            android:name=".DetailedActivity"
+            android:name=".ComicFilterDetailActivity"
             android:exported="false" />
         <activity
             android:name=".LobbyActivity"

@@ -111,7 +111,7 @@ public class AllComicFiltersAdapter extends RecyclerView.Adapter<AllComicFilters
     }
 
     private void startDetailedActivity(ComicFilter comicFilter) {
-        Intent intent = new Intent((LobbyActivity)context, DetailedActivity.class);
+        Intent intent = new Intent((LobbyActivity)context, ComicFilterDetailActivity.class);
         intent.putExtra("ComicFilter", comicFilter);
         context.startActivity(intent);
     }
