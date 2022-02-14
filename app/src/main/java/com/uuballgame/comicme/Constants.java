@@ -5,7 +5,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 
@@ -75,5 +78,24 @@ public class Constants {
 
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
         return  bitmap;
+    }
+
+    public static Bitmap enlargeBmap(Bitmap bitmap, float scale) {
+        Bitmap result = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(result);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(Color.BLACK);
+        Rect rect = new Rect(0,0,bitmap.getWidth(),bitmap.getHeight());
+        canvas.drawRect(rect, paint);
+
+        Matrix matrix = new Matrix();
+        matrix.setScale(scale, scale);
+        float wShift = (1.0f - scale) / 2.0f * (float) bitmap.getWidth();
+        float hShift = (1.0f - scale) / 2.0f * (float) bitmap.getHeight();
+        matrix.postTranslate(wShift, hShift);
+        canvas.drawBitmap(bitmap, matrix, paint);
+
+        return result;
     }
 }

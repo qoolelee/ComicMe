@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.cuneytayyildiz.gestureimageview.GestureImageView;
@@ -37,8 +39,20 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(comicSourceImage.photoPath);
         bitmap = Constants.rotateBmap(bitmap, -90);
 
+        // enlarge 2 times the bitmap
+        bitmap = Constants.enlargeBmap(bitmap, 0.7f);
+
         GestureImageView pictureView = findViewById(R.id.image_detailed_picture_view);
         pictureView.setImageBitmap(bitmap);
+
+        // bitmap check and crop
+        Button okButton = findViewById(R.id.image_detailed_confirm_button);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
     }
 
