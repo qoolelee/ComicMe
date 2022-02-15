@@ -23,14 +23,13 @@
     <com.cuneytayyildiz.gestureimageview.GestureImageView
         android:id="@+id/image_detailed_picture_view"
         android:layout_width="match_parent"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toTopOf="@id/image_detailed_confirm_button"
         tools:srcCompat="@tools:sample/avatars"
+        android:scaleType="center"
         app:gi_min_scale="0.1"
         app:gi_max_scale="10.0"
         app:gi_strict="false" />
