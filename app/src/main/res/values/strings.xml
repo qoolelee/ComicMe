@@ -25,4 +25,13 @@
     <string name="picture_collection_gallery">Gallery</string>
     <string name="image_detailed_title">Place face inside the frame</string>
     <string name="image_detailed_confirm">OK</string>
+    <string name="image_detailed_error01">Image scale too much, please scale down.</string>
+    <string name="image_detailed_error">Error!</string>
+
+    <string name="image_detailed_error02">No face in the picture, please adjust and try again.</string>
+    <string name="image_detailed_error03">One face in picture only, please try again.</string>
+    <string name="image_detailed_error04">Face too small in picture, please adjust.</string>
+    <string name="image_detailed_error05">Please look at the camera.</string>
+    <string name="image_detailed_error07">Internal error, please try again.</string>
+    <string name="image_detailed_error06">Place full face in the frame please.</string>
 </resources>

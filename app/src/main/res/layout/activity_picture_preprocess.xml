@@ -28,8 +28,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toTopOf="@id/image_detailed_confirm_button"
-        tools:srcCompat="@tools:sample/avatars"
-        android:scaleType="center"
+        android:scaleType="centerCrop"
         app:gi_min_scale="0.1"
         app:gi_max_scale="10.0"
         app:gi_strict="false" />
