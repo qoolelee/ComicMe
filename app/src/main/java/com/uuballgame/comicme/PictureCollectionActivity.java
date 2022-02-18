@@ -40,6 +40,7 @@ import java.util.List;
 public class PictureCollectionActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    public static final int NUMBER_OF_COLUMNS = 4;
 
     private ComicFilter comicFilter;
     String currentPhotoPath;
@@ -67,8 +68,8 @@ public class PictureCollectionActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.picture_collection_recyclerview);
 
         // prepare data for adapter
-        int numberOfColumns = Constants.calculateNoOfColumns(this, 100);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
+        //int numberOfColumns = Constants.calculateNoOfColumns(this, 80);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COLUMNS));
 
         // Create the View holder adapter
         adapter = new PictureCollectionAdapter(this, comicSourceImages, comicFilter);
@@ -94,6 +95,17 @@ public class PictureCollectionActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        // unhidden musk
+        findViewById(R.id.picture_collection_top_view).setVisibility(View.GONE);
+        findViewById(R.id.picture_collection_progressbar).setVisibility(View.GONE);
+        findViewById(R.id.picture_collection_button_camera).setClickable(true);
+        findViewById(R.id.picture_collection_button_gallery).setClickable(true);
     }
 
     private File createImageFile() throws IOException {
