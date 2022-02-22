@@ -7,18 +7,28 @@
     android:background="@color/black"
     tools:context=".PicturePreprocessActivity">
 
-    <Button
-        android:id="@+id/image_detailed_confirm_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+    <ImageView
+        android:id="@+id/process_image_yes"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginBottom="40dp"
-        android:text="@string/image_detailed_confirm"
-        app:cornerRadius="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/yes_hook" />
+
+    <ImageView
+        android:id="@+id/process_image_no"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/no_hook" />
+
 
     <com.cuneytayyildiz.gestureimageview.GestureImageView
         android:id="@+id/image_detailed_picture_view"
@@ -27,22 +37,24 @@
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="40dp"
-        app:layout_constraintBottom_toTopOf="@id/image_detailed_confirm_button"
+        app:layout_constraintBottom_toTopOf="@id/process_image_yes"
         android:scaleType="centerCrop"
         app:gi_min_scale="0.1"
         app:gi_max_scale="10.0"
         app:gi_strict="false" />
 
     <ImageView
-        android:id="@+id/image_detailed_picture_musk"
+        android:id="@+id/image_process_picture_musk"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_marginBottom="40dp"
-        app:layout_constraintBottom_toTopOf="@id/image_detailed_confirm_button"
-        app:srcCompat="@drawable/image_process_musk"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@id/process_image_yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/image_process_musk" />
 
     <ImageView
         android:id="@+id/picture_process_top_view"
@@ -68,6 +80,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/uploading_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:text="@string/picture_process_uploading"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/process_image_no"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:visibility="gone"/>
 
 

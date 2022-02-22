@@ -38,7 +38,8 @@ import java.util.Date;
 import java.util.List;
 
 public class PictureCollectionActivity extends AppCompatActivity {
-    private static final int REQUEST_IMAGE_CAPTURE = 1888;
+    public static final int REQUEST_IMAGE_CAPTURE = 1888;
+    public static final int REQUEST_IMAGE_PROCESS = 1889;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     public static final int NUMBER_OF_COLUMNS = 4;
 
@@ -91,7 +92,8 @@ public class PictureCollectionActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    dispatchTakePictureIntent();
+                    //dispatchTakePictureIntent();
+                    startCustomCameraIntent();
                 }
             }
         });
@@ -147,6 +149,30 @@ public class PictureCollectionActivity extends AppCompatActivity {
         }
     }
 
+    private void startCustomCameraIntent() {
+        Intent cameraIntent = new Intent(this, CameraActivity.class);
+        // Ensure that there's a camera activity to handle the intent
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e("ERROR!", ex.toString());
+            }
+
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.uuballgame.comicme",
+                        photoFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoPath);
+                startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+
+    }
 
     // over ride this method to finish current activity
     @Override
@@ -183,7 +209,18 @@ public class PictureCollectionActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             // read back the image file and scale it to thumbnail
-            Bitmap scaledBitmap = Constants.getScaledBitmap(currentPhotoPath, 200, 200);
+            Bitmap scaledBitmap = Constants.getScaledBitmap(currentPhotoPath, 100, 100);
+            ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), currentPhotoPath);
+
+            // start process picture activity
+            Intent imageDetailedActivityIntent = new Intent(this, PicturePreprocessActivity.class);
+            imageDetailedActivityIntent.putExtra("ComicSourceImage", comicSourceImage);
+            imageDetailedActivityIntent.putExtra("ComicFilter", comicFilter);
+            startActivityForResult(imageDetailedActivityIntent, PictureCollectionActivity.REQUEST_IMAGE_PROCESS);
+        }
+        else if(requestCode == REQUEST_IMAGE_PROCESS && resultCode == Activity.RESULT_OK){
+            // read back the image file and scale it to thumbnail
+            Bitmap scaledBitmap = Constants.getScaledBitmap(currentPhotoPath, 100, 100);
             ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), currentPhotoPath);
 
             // adapter changed

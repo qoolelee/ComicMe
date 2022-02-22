@@ -34,4 +34,8 @@
     <string name="image_detailed_error05">Please look at the camera.</string>
     <string name="image_detailed_error07">Internal error, please try again.</string>
     <string name="image_detailed_error06">Place full face in the frame please.</string>
+    <string name="take_picture">Take a picture</string>
+    <string name="delete_this_picture">Delete this picture?</string>
+    <string name="image_detailed_cancel">Cancel</string>
+    <string name="picture_process_uploading">Uploading...</string>
 </resources>

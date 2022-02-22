@@ -12,10 +12,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.cuneytayyildiz.gestureimageview.GestureImageView;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,6 +35,9 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     private ComicFilter comicFilter;
     private ComicSourceImage comicSourceImage;
     private Bitmap originalBitmap;
+    private ImageView okButton;
+    private ImageView noButton;
+    private View.OnClickListener okListener, noListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
 
         // Get the dimensions of the bitmap
         originalBitmap = BitmapFactory.decodeFile(comicSourceImage.photoPath);
-        originalBitmap = Constants.rotateBmap(originalBitmap, -90);
+        if(originalBitmap.getWidth()>originalBitmap.getHeight())originalBitmap = Constants.rotateBmap(originalBitmap, -90);
 
         // enlarge 2 times the bitmap
         float bScale = 0.5f;
@@ -71,17 +75,30 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         pictureView.setStartingScale(sScale);
 
         // bitmap check and crop
-        Button okButton = findViewById(R.id.image_detailed_confirm_button);
-        okButton.setOnClickListener(new View.OnClickListener() {
+        okListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bitmap cropedBitmap = getFramedBitmap(pictureView, bScale);
-
                 uploadPicture(cropedBitmap);
             }
-        });
+        };
+        okButton = findViewById(R.id.process_image_yes);
+        okButton.setOnClickListener(okListener);
+
+        // return to PictureCollectionActivity
+        noListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        };
+        noButton = findViewById(R.id.process_image_no);
+        noButton.setOnClickListener(noListener);
 
     }
+
+
+
 
     public static final int MIN_BITMAP_WIDTH = 200; // pixels
     public static final float MIN_FACE_RATIO = 0.2f;
@@ -96,6 +113,9 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     public static final int ERROR007 = 7;
 
     private void uploadPicture(Bitmap bitmap) {
+        // show musk and progress bar
+        setMusk(View.VISIBLE);
+
         // 1. check image size, less than 200x200 pixels disqualified
         if(bitmap.getWidth()< MIN_BITMAP_WIDTH){
             setAlertText(ERROR001);
@@ -161,7 +181,8 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                         }
 
                         // if all pass show progress bar, and start to upload to server
-                        
+
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -172,6 +193,24 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+    private void setMusk(int visible) {
+        ImageView musk = findViewById(R.id.picture_process_top_view);
+        ProgressBar progressBar = findViewById(R.id.picture_process_progressbar);
+        musk.setVisibility(visible);
+        progressBar.setVisibility(visible);
+        TextView text = findViewById(R.id.uploading_text_view);
+        text.setVisibility(visible);
+
+        if(visible == View.VISIBLE){
+            okButton.setOnClickListener(null);
+            noButton.setOnClickListener(null);
+        }
+        else{
+            okButton.setOnClickListener(okListener);
+            noButton.setOnClickListener(noListener);
+        }
     }
 
     private void setAlertText(int error) {
@@ -214,6 +253,9 @@ public class PicturePreprocessActivity extends AppCompatActivity {
             }
         });
         alertDialog.show();
+
+        // hide musk and progress bar
+        setMusk(View.GONE);
     }
 
     private float orgX,orgY;
