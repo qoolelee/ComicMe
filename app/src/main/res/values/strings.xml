@@ -38,4 +38,7 @@
     <string name="delete_this_picture">Delete this picture?</string>
     <string name="image_detailed_cancel">Cancel</string>
     <string name="picture_process_uploading">Uploading...</string>
+    <string name="server_maintain_please_try_again">Serer maintain, please try again.</string>
+    <string name="image_detailed_error08">Server processed error, please try again.</string>
+    <string name="picture_process_processing">Processing...</string>
 </resources>

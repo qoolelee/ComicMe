@@ -28,6 +28,9 @@
         android:theme="@style/Theme.ComicMe"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ShowResultActivity"
+            android:exported="false" />
+        <activity
             android:name=".CameraActivity"
             android:exported="false" />
 

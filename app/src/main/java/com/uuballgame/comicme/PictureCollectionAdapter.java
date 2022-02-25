@@ -13,7 +13,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
@@ -125,7 +124,7 @@ public class PictureCollectionAdapter extends RecyclerView.Adapter<PictureCollec
         ComicSourceImage comicSourceImage = comicSourceImages.get(position);
 
         Bitmap bitmapOrg = Constants.convert(comicSourceImage.thumbnailBitmapBase64);
-        if(bitmapOrg.getWidth()>bitmapOrg.getHeight()) bitmapOrg = Constants.rotateBmap(bitmapOrg, -90);
+        if(bitmapOrg.getWidth()>bitmapOrg.getHeight()) bitmapOrg = Constants.rotateBitmap(bitmapOrg, -90);
         holder.picImageView.setImageBitmap(bitmapOrg);
     }
 

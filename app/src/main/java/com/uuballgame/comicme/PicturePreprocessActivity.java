@@ -10,18 +10,29 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.cuneytayyildiz.gestureimageview.GestureImageView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -29,7 +40,20 @@ import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.face.FaceLandmark;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PicturePreprocessActivity extends AppCompatActivity {
     private ComicFilter comicFilter;
@@ -38,6 +62,8 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     private ImageView okButton;
     private ImageView noButton;
     private View.OnClickListener okListener, noListener;
+    private static final String CROPPED_FILE_NAME = "img_" + Constants.COMIC_ME_UUID + "_";
+    private static final int NORMALIZED_PIC_WIDTH = 400;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +82,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
 
         // Get the dimensions of the bitmap
         originalBitmap = BitmapFactory.decodeFile(comicSourceImage.photoPath);
-        if(originalBitmap.getWidth()>originalBitmap.getHeight())originalBitmap = Constants.rotateBmap(originalBitmap, -90);
+        if(originalBitmap.getWidth()>originalBitmap.getHeight())originalBitmap = Constants.rotateBitmap(originalBitmap, -90);
 
         // enlarge 2 times the bitmap
         float bScale = 0.5f;
@@ -78,7 +104,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         okListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap cropedBitmap = getFramedBitmap(pictureView, bScale);
+                Bitmap cropedBitmap = getFramedBitmap(pictureView);
                 uploadPicture(cropedBitmap);
             }
         };
@@ -98,8 +124,6 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     }
 
 
-
-
     public static final int MIN_BITMAP_WIDTH = 200; // pixels
     public static final float MIN_FACE_RATIO = 0.2f;
     public static final float MAX_FACE_ROTY = 45.0f;
@@ -111,6 +135,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     public static final int ERROR005 = 5;
     public static final int ERROR006 = 6;
     public static final int ERROR007 = 7;
+    public static final int ERROR008 = 8;
 
     private void uploadPicture(Bitmap bitmap) {
         // show musk and progress bar
@@ -181,7 +206,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                         }
 
                         // if all pass show progress bar, and start to upload to server
-
+                        startUploading(bitmap);
 
                     }
                 })
@@ -195,6 +220,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
 
     }
 
+
     private void setMusk(int visible) {
         ImageView musk = findViewById(R.id.picture_process_top_view);
         ProgressBar progressBar = findViewById(R.id.picture_process_progressbar);
@@ -202,6 +228,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         progressBar.setVisibility(visible);
         TextView text = findViewById(R.id.uploading_text_view);
         text.setVisibility(visible);
+        text.setText(R.string.picture_process_uploading);
 
         if(visible == View.VISIBLE){
             okButton.setOnClickListener(null);
@@ -237,6 +264,9 @@ public class PicturePreprocessActivity extends AppCompatActivity {
             case ERROR007:
                 alertMessage = R.string.image_detailed_error07;
                 break;
+            case ERROR008:
+                alertMessage = R.string.image_detailed_error08;
+                break;
             default:
                 break;
         }
@@ -259,14 +289,14 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     }
 
     private float orgX,orgY;
-    private Bitmap getFramedBitmap(GestureImageView pictureView, float bScale) {
+    private Bitmap getFramedBitmap(GestureImageView pictureView) {
         float viewWidth = pictureView.getWidth();
         float viewHeight = pictureView.getHeight();
         float imageX = pictureView.getImageX();
         float imageY = pictureView.getImageY();
         if(orgX == 0.0f){
-            orgX = imageX;
-            orgY = imageY;
+            orgX = viewWidth / 2.0f;
+            orgY = viewHeight / 2.0f;
         }
         float imageWidth = pictureView.getImageWidth();
         float imageHeight = pictureView.getImageHeight();
@@ -274,7 +304,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
 
         //sScale = vWidth / (iWidth * bScale)
         float frameWidth = 300.0f / 380.0f * viewWidth / sScale;
-        float frameHeight = frameWidth;  // 3:4 width/height ratio
+        float frameHeight = frameWidth;
         float shiftX = orgX - imageX;
         float shiftY = orgY - imageY;
 
@@ -300,4 +330,169 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    private void startUploading(Bitmap bitmap) {
+        // normalize to NORMALIZED_PIC_WIDTH
+        bitmap = Constants.scaleBitmap(bitmap, NORMALIZED_PIC_WIDTH, NORMALIZED_PIC_WIDTH);
+
+        // upload bitmap to server
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String fileName = CROPPED_FILE_NAME + timeStamp + ".png";
+        File file = new File(getFilesDir(), fileName);
+        if(file.exists())file.delete();
+        FileOutputStream fOut = null;
+        try {
+            fOut = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        new UploadImageTask().execute(file);
+    }
+
+    private class UploadImageTask extends AsyncTask<File, Void, String> {
+        String fileName;
+
+        @Override
+        protected String doInBackground(File... files) {
+            File file = files[0];
+            fileName = file.getName();
+
+            try {
+                final String boundary = "==============";
+                final String twoHyphens = "--";
+                final String lineEnd = "\r\n";
+
+                FileInputStream fis = openFileInput(fileName);
+                URL url = new URL(Constants.IMAGE_UPLOAD_PHP_URL);
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setUseCaches(false);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                conn.setRequestProperty("uploaded_file", fileName);
+
+                DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\"" + fileName + "\"" + lineEnd);
+                dos.writeBytes(lineEnd);
+
+                //上傳檔案，不是一次就可以傳送上去。要一部份一部份的上傳。
+                //所以，要先設定一個buffer，將檔案的內容分次上傳。
+                int bytesAvailable = fis.available();
+                int bufferSize = Math.min(bytesAvailable, 1024*1024);
+                byte[] buffer = new byte[bufferSize];
+                int bytesRead = fis.read(buffer, 0, bufferSize);
+                while (bytesRead > 0) {
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fis.available();
+                    bufferSize = Math.min(bytesAvailable, 1024*1024);
+                    bytesRead = fis.read(buffer, 0, bufferSize);
+                }
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens+ boundary + twoHyphens);	// (結束)寫--==================================--
+
+                // Responses from the server (code and message)
+                int serverResponseCode = conn.getResponseCode();
+                String serverResponseMessage = conn.getResponseMessage();
+
+                Log.i("uploadFile", "HTTP Response is : "
+                        + serverResponseMessage + ": " + serverResponseCode);
+
+                fis.close();
+                dos.flush();
+                dos.close();
+
+                return serverResponseMessage;
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if(result.equalsIgnoreCase("OK")){
+                startDraw(fileName);
+            }
+            else{
+                setMusk(View.GONE);
+                setAlertText(ERROR008);
+            }
+        }
+    }
+
+    private void startDraw(String fileName) {
+        // text view change
+        TextView textView = findViewById(R.id.uploading_text_view);
+        textView.setText(R.string.picture_process_processing);
+
+        // inform server to process image
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = Constants.START_PICTURE_PROCESS_URL;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    // musk off
+                    setMusk(View.GONE);
+
+                    if(response.equalsIgnoreCase("done")){
+                        Intent intent = new Intent();
+                        intent.putExtra("fileName", fileName);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                    else{
+                        setAlertText(ERROR008);
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // musk off
+                setMusk(View.GONE);
+                setAlertText(ERROR008);
+            }
+        })
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("fileName", fileName);
+                return map;
+            }
+        };
+
+        // 10 seconds time out time
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
+        );
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+    }
+
 }

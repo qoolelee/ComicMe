@@ -40,6 +40,7 @@ import java.util.List;
 public class PictureCollectionActivity extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE = 1888;
     public static final int REQUEST_IMAGE_PROCESS = 1889;
+    public static final int SHOW_RESULT_ACTIVITY = 1890;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     public static final int NUMBER_OF_COLUMNS = 4;
 
@@ -212,17 +213,6 @@ public class PictureCollectionActivity extends AppCompatActivity {
             Bitmap scaledBitmap = Constants.getScaledBitmap(currentPhotoPath, 100, 100);
             ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), currentPhotoPath);
 
-            // start process picture activity
-            Intent imageDetailedActivityIntent = new Intent(this, PicturePreprocessActivity.class);
-            imageDetailedActivityIntent.putExtra("ComicSourceImage", comicSourceImage);
-            imageDetailedActivityIntent.putExtra("ComicFilter", comicFilter);
-            startActivityForResult(imageDetailedActivityIntent, PictureCollectionActivity.REQUEST_IMAGE_PROCESS);
-        }
-        else if(requestCode == REQUEST_IMAGE_PROCESS && resultCode == Activity.RESULT_OK){
-            // read back the image file and scale it to thumbnail
-            Bitmap scaledBitmap = Constants.getScaledBitmap(currentPhotoPath, 100, 100);
-            ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), currentPhotoPath);
-
             // adapter changed
             comicSourceImages.add(comicSourceImage);
             adapter.comicSourceImages = comicSourceImages;
@@ -235,6 +225,20 @@ public class PictureCollectionActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("comic_source_images", str);
             editor.apply();
+
+            // start process picture activity
+            Intent imageDetailedActivityIntent = new Intent(this, PicturePreprocessActivity.class);
+            imageDetailedActivityIntent.putExtra("ComicSourceImage", comicSourceImage);
+            imageDetailedActivityIntent.putExtra("ComicFilter", comicFilter);
+            startActivityForResult(imageDetailedActivityIntent, PictureCollectionActivity.REQUEST_IMAGE_PROCESS);
+        }
+        else if(requestCode == REQUEST_IMAGE_PROCESS && resultCode == Activity.RESULT_OK){
+            // start result picture activity
+            String fileName = data.getStringExtra("fileName");
+            Intent showResultActivityIntent = new Intent(this, ShowResultActivity.class);
+            showResultActivityIntent.putExtra("ComicFilter", comicFilter);
+            showResultActivityIntent.putExtra("fileName", fileName);
+            startActivityForResult(showResultActivityIntent, PictureCollectionActivity.SHOW_RESULT_ACTIVITY);
         }
     }
 

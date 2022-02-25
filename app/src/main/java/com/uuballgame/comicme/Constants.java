@@ -17,10 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Constants {
+    public static String COMIC_ME_UUID;
     public static String USER_NAME = "guest";
     public static String USER_PASSWORD = "guestPass";
 
-    public static final String GET_FILTERS_DATA_LIST_URL = "http://34.105.126.48/ComicMe/Api/getComicFiltersList.php";
+    public static final String SERVER_IP = "http://34.105.126.48";
+    public static final String GET_NEW_UUID_URL = SERVER_IP + "/ComicMe/Api/getNewUUID.php";
+    public static final String GET_FILTERS_DATA_LIST_URL = SERVER_IP + "/ComicMe/Api/getComicFiltersList.php";
+    public static final String IMAGE_UPLOAD_PHP_URL = SERVER_IP + "/ComicMe/Api/uploadImage.php";
+    public static final String START_PICTURE_PROCESS_URL = SERVER_IP + "/ComicMe/Api/startImageProcess.php";
 
     public static List<ComicFilter> COMIC_FILTERS_LIST = new ArrayList<>();
     public static List<ComicFilter> COMIC_FILTERS_HISTORICAL = new ArrayList<>();
@@ -51,10 +56,14 @@ public class Constants {
         return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
     }
 
-    public static Bitmap rotateBmap(Bitmap source, int angle) {
+    public static Bitmap rotateBitmap(Bitmap source, int angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    public static Bitmap scaleBitmap(Bitmap source, int targetW, int targetH) {
+        return Bitmap.createScaledBitmap(source, targetW, targetH, false);
     }
 
     public static Bitmap getScaledBitmap(String currentPhotoPath, int targetW, int targetH) {

@@ -7,12 +7,25 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.ProgressBar;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static int SPLASH_TIME_OUT = 1000;
@@ -44,7 +57,11 @@ public class MainActivity extends AppCompatActivity {
             Alert(getResources().getString(R.string.alert_no_internet));
         }
 
+
+
     }
+
+
 
     private void fullScreen() {
         currentApiVersion = Build.VERSION.SDK_INT;
