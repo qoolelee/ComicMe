@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
@@ -81,7 +82,17 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Get the dimensions of the bitmap
-        originalBitmap = BitmapFactory.decodeFile(comicSourceImage.photoPath);
+        if(comicSourceImage.photoPath!=null) {
+            originalBitmap = BitmapFactory.decodeFile(comicSourceImage.photoPath);
+        }
+        else{
+            try {
+                originalBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), PictureCollectionActivity.SImageUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+                finish();
+            }
+        }
         if(originalBitmap.getWidth()>originalBitmap.getHeight())originalBitmap = Constants.rotateBitmap(originalBitmap, -90);
 
         // enlarge 2 times the bitmap
