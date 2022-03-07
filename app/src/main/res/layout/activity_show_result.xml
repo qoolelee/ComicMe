@@ -20,51 +20,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <ImageButton
-        android:id="@+id/show_detail_button_line"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@drawable/icon_line_white"
-        android:scaleType="fitCenter"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:id="@+id/show_detail_button_toggle_original"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
         android:layout_marginLeft="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/show_detail_button_fb"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@id/show_detail_buy_button" />
-
-    <ImageButton
-        android:id="@+id/show_detail_button_fb"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@drawable/icon_fb_white"
+        android:background="@drawable/toggle_switch_on"
         android:scaleType="fitCenter"
-        app:layout_constraintStart_toEndOf="@id/show_detail_button_line"
-        app:layout_constraintEnd_toStartOf="@id/show_detail_button_ig"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@id/show_detail_buy_button" />
-
-    <ImageButton
-        android:id="@+id/show_detail_button_ig"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@drawable/icon_ig_white"
-        android:scaleType="fitCenter"
-        app:layout_constraintStart_toEndOf="@id/show_detail_button_fb"
-        app:layout_constraintEnd_toStartOf="@id/show_detail_button_tweet"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@id/show_detail_buy_button" />
-
-    <ImageButton
-        android:id="@+id/show_detail_button_tweet"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:background="@drawable/icon_tweet_white"
-        android:scaleType="fitCenter"
-        app:layout_constraintStart_toEndOf="@id/show_detail_button_ig"
+        app:layout_constraintDimensionRatio="2:1"
         app:layout_constraintEnd_toStartOf="@id/show_detail_button_share"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@id/show_detail_buy_button" />
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/show_detail_button_share" />
 
     <ImageButton
         android:id="@+id/show_detail_button_share"
@@ -72,7 +40,7 @@
         android:layout_height="60dp"
         android:background="@drawable/icon_share_white"
         android:scaleType="fitCenter"
-        app:layout_constraintStart_toEndOf="@id/show_detail_button_tweet"
+        app:layout_constraintStart_toEndOf="@id/show_detail_button_toggle_original"
         android:layout_marginRight="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="20dp"
@@ -106,5 +74,16 @@
             android:layout_gravity="center"/>
 
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/show_detail_toggle_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="@string/show_detail_toggle_note"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@id/show_detail_button_toggle_original"
+        app:layout_constraintEnd_toEndOf="@id/show_detail_button_toggle_original"
+        app:layout_constraintTop_toBottomOf="@id/show_detail_button_toggle_original" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

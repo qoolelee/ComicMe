@@ -5,15 +5,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.StrictMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,24 +22,18 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
-
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class ShowResultActivity extends AppCompatActivity {
     private ComicFilter comicFilter;
     private ComicSourceImage comicSourceImage;
     private Bitmap waterMarkBitmap = null;
-    private Bitmap result_bitmap;
-    private ImageButton buttonLine;
+    private Bitmap result_bitmap, org_bitmap;
+    private ImageButton buttonShare;
+    private ImageButton buttonToggle;
 
-    private static boolean ORIGINAL_PIC = true;
+    protected static boolean ORIGINAL_PIC = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +51,13 @@ public class ShowResultActivity extends AppCompatActivity {
         actionBar.setTitle(comicFilter.name);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        // for avoiding share error
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+            builder.detectFileUriExposure();
+        }
+
         // show bitmap in imageview
         ProgressBar progressBar = findViewById(R.id.show_detail_progressbar);
         Glide.with(this)
@@ -68,16 +68,8 @@ public class ShowResultActivity extends AppCompatActivity {
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         progressBar.setVisibility(View.GONE);
 
-                        Bitmap bitmap = resource;
-                        bitmap = addOriginal(ORIGINAL_PIC, comicSourceImage, result_bitmap);
-                        if(!Constants.PRO_USER){
-                            waterMarked(bitmap);
-                            return;
-                        }
-                        else{
-                            setView(bitmap);
-                        }
-
+                        org_bitmap = resource;
+                        muskBitmap();
                     }
 
                     @Override
@@ -86,40 +78,52 @@ public class ShowResultActivity extends AppCompatActivity {
                     }
                 });
 
-        // line button share
-        buttonLine = findViewById(R.id.show_detail_button_line);
-        buttonLine.setOnClickListener(new View.OnClickListener() {
+        // button share
+        buttonShare = findViewById(R.id.show_detail_button_share);
+        buttonShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                shareWithLine(result_bitmap);
+                shareCall(result_bitmap);
             }
         });
 
-        // set all buttons disable
-        setButtonsWork(false);
+        // button Toggle
+        buttonToggle = findViewById(R.id.show_detail_button_toggle_original);
+        buttonToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ORIGINAL_PIC = !ORIGINAL_PIC;
+                muskBitmap();
+                if(ORIGINAL_PIC){
+                    buttonToggle.setBackground(getResources().getDrawable(R.drawable.toggle_switch_on));
+                }
+                else{
+                    buttonToggle.setBackground(getResources().getDrawable(R.drawable.toggle_switch_off));
+                }
+            }
+        });
+
     }
 
-    private void setButtonsWork(boolean isWokable) {
-        buttonLine.setActivated(isWokable);
+    private void muskBitmap() {
+        Bitmap bitmap = addOriginal(ORIGINAL_PIC, comicSourceImage, org_bitmap);
+        if(!Constants.PRO_USER){
+            waterMarked(bitmap);
+            return;
+        }
+        else{
+            setView(bitmap);
+        }
     }
 
-    private void shareWithLine(Bitmap bitmap) {
-        ComponentName cn = new ComponentName("jp.naver.line.android", "jp.naver.line.android.activity.selectchat.SelectChatActivityLaunchActivity");
+
+    private void shareCall(Bitmap bitmap) {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
-
-        //shareIntent.setType("text/plain"); // 純文字
-        //shareIntent.putExtra(Intent.EXTRA_TEXT, shareUrl);
-        //intent.putExtra(Intent.EXTRA_SUBJECT, "分享的標題");
-        //intent.putExtra(Intent.EXTRA_TEXT, "分享的內容");
-
-
-        Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null,null));
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-        shareIntent.setType("image/*");
-
-        shareIntent.setComponent(cn);//跳到指定APP的Activity
-        startActivity(Intent.createChooser(shareIntent, ""));
+        Uri uriToImage = Constants.bitmapToUri(this, bitmap);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
+        shareIntent.setType("image/png");
+        startActivity(Intent.createChooser(shareIntent, null));
     }
 
     private Bitmap addOriginal(boolean originalPic, ComicSourceImage comicSourceImage, Bitmap src) {
@@ -131,7 +135,6 @@ public class ShowResultActivity extends AppCompatActivity {
 
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(src, 0, 0, null);
-
 
         Bitmap bitmapOrg = Constants.convert(comicSourceImage.thumbnailBitmapBase64);
         bitmapOrg = Constants.rotateBitmap(bitmapOrg, -90);
@@ -200,7 +203,5 @@ public class ShowResultActivity extends AppCompatActivity {
         }
         return true;
     }
-
-
 
 }

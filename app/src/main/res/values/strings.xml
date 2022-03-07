@@ -43,4 +43,5 @@
     <string name="picture_process_processing">Processing...</string>
     <string name="show_detail_buy_no_watermark">Buy pro for water mark removed</string>
     <string name="action_home">Home</string>
+    <string name="show_detail_toggle_note">Picture</string>
 </resources>
