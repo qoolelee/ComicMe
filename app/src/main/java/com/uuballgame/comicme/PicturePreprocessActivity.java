@@ -466,9 +466,14 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                     // musk off
                     setMusk(View.GONE);
 
-                    if(response.equalsIgnoreCase("done")){
+                    // decode JSON
+                    ProcessResult processResult = new Gson().fromJson(response, ProcessResult.class);
+
+                    if(processResult.result.equals("Success")){
+                        String url = Constants.SERVER_IP + processResult.url;
                         Intent intent = new Intent();
-                        intent.putExtra("fileName", fileName);
+                        intent.putExtra("url", url);
+                        intent.putExtra("ComicSourceImage", comicSourceImage);
                         setResult(RESULT_OK, intent);
                         finish();
                     }
@@ -490,13 +495,14 @@ public class PicturePreprocessActivity extends AppCompatActivity {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
                 map.put("fileName", fileName);
+                map.put("model", String.valueOf(comicFilter.id - 1)); // id minus 1
                 return map;
             }
         };
 
-        // 10 seconds time out time
+        // 20 seconds time out time
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                10000,
+                20000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
         );
@@ -504,6 +510,16 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
 
+    }
+
+    class ProcessResult{
+        public String result;
+        public String url;
+
+        public ProcessResult(String result, String url){
+            this.result = result;
+            this.url = url;
+        }
     }
 
 }

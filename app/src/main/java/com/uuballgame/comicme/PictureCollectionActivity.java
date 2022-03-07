@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -39,6 +38,9 @@ import java.util.Date;
 import java.util.List;
 
 public class PictureCollectionActivity extends AppCompatActivity {
+    public static Uri SImageUrl = null;
+    public static Boolean Back_Home = false;
+
     public static final int REQUEST_IMAGE_CAPTURE = 1888;
     public static final int REQUEST_IMAGE_PROCESS = 1889;
     public static final int SHOW_RESULT_ACTIVITY = 1890;
@@ -120,6 +122,12 @@ public class PictureCollectionActivity extends AppCompatActivity {
         findViewById(R.id.picture_collection_progressbar).setVisibility(View.GONE);
         findViewById(R.id.picture_collection_button_camera).setClickable(true);
         findViewById(R.id.picture_collection_button_gallery).setClickable(true);
+
+        // check if go back home
+        if(Back_Home){
+            Back_Home = false;
+            finish();
+        }
     }
 
     // this function is triggered when
@@ -240,10 +248,12 @@ public class PictureCollectionActivity extends AppCompatActivity {
         }
         else if(requestCode == REQUEST_IMAGE_PROCESS && resultCode == Activity.RESULT_OK){
             // start result picture activity
-            String fileName = data.getStringExtra("fileName");
+            String url = data.getStringExtra("url");
+            ComicSourceImage comicSourceImage = (ComicSourceImage) data.getSerializableExtra("ComicSourceImage");
             Intent showResultActivityIntent = new Intent(this, ShowResultActivity.class);
             showResultActivityIntent.putExtra("ComicFilter", comicFilter);
-            showResultActivityIntent.putExtra("fileName", fileName);
+            showResultActivityIntent.putExtra("url", url);
+            showResultActivityIntent.putExtra("ComicSourceImage", comicSourceImage);
             startActivityForResult(showResultActivityIntent, PictureCollectionActivity.SHOW_RESULT_ACTIVITY);
         }
         else if(requestCode == REQUEST_IMAGE_GALLERY && resultCode == Activity.RESULT_OK){
@@ -251,13 +261,12 @@ public class PictureCollectionActivity extends AppCompatActivity {
             Uri selectedImageUri = data.getData();
             if (null != selectedImageUri) {
                 // update adaptor, start process image activity
-                updateAdaptorAndStartProcessImageActivity(selectedImageUri);
+                startProcessImageActivity(selectedImageUri);
             }
         }
     }
 
-    public static Uri SImageUrl = null;
-    private void updateAdaptorAndStartProcessImageActivity(Uri imageUri) {
+    private void startProcessImageActivity(Uri imageUri) {
         Bitmap bitmap = null;
         try {
             bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
@@ -269,21 +278,6 @@ public class PictureCollectionActivity extends AppCompatActivity {
         Bitmap scaledBitmap = Constants.scaleBitmap(bitmap, 100, 100);
         ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), null);
         SImageUrl = imageUri;
-
-        /*
-        // adapter changed
-        comicSourceImages.add(comicSourceImage);
-        adapter.comicSourceImages = comicSourceImages;
-        adapter.notifyDataSetChanged();
-
-        // to Json string
-        String str = new Gson().toJson(comicSourceImages);
-        // save to preference
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.comic_me_app), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("comic_source_images", str);
-        editor.apply();
-         */
 
         // start process picture activity
         Intent imageDetailedActivityIntent = new Intent(this, PicturePreprocessActivity.class);
@@ -316,13 +310,6 @@ public class PictureCollectionActivity extends AppCompatActivity {
         imageDetailedActivityIntent.putExtra("ComicFilter", comicFilter);
         startActivityForResult(imageDetailedActivityIntent, PictureCollectionActivity.REQUEST_IMAGE_PROCESS);
     }
-
-    public String getPicturePathFromUri(Uri selectedImageUri) {
-        FileUtils.context = this;
-        String filePath = FileUtils.getPath(selectedImageUri);
-        return filePath;
-    }
-
 
     private List<ComicSourceImage> getSavedComicSourceImages() {
         List<ComicSourceImage> CSIList = new ArrayList<>();

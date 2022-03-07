@@ -41,4 +41,6 @@
     <string name="server_maintain_please_try_again">Serer maintain, please try again.</string>
     <string name="image_detailed_error08">Server processed error, please try again.</string>
     <string name="picture_process_processing">Processing...</string>
+    <string name="show_detail_buy_no_watermark">Buy pro for water mark removed</string>
+    <string name="action_home">Home</string>
 </resources>

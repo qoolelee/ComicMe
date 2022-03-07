@@ -8,9 +8,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+
+import androidx.core.content.ContextCompat;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ public class Constants {
     public static String COMIC_ME_UUID;
     public static String USER_NAME = "guest";
     public static String USER_PASSWORD = "guestPass";
+    public static Boolean PRO_USER = false;
 
     public static final String SERVER_IP = "http://34.105.126.48";
     public static final String GET_NEW_UUID_URL = SERVER_IP + "/ComicMe/Api/getNewUUID.php";
@@ -66,6 +71,10 @@ public class Constants {
         return Bitmap.createScaledBitmap(source, targetW, targetH, false);
     }
 
+    public static Bitmap scaleBitmap(Bitmap source, float scale) {
+        return Bitmap.createScaledBitmap(source, (int)(source.getWidth() * scale), (int)(source.getHeight() * scale), false);
+    }
+
     public static Bitmap getScaledBitmap(String currentPhotoPath, int targetW, int targetH) {
 
         // Get the dimensions of the bitmap
@@ -106,5 +115,27 @@ public class Constants {
         canvas.drawBitmap(bitmap, matrix, paint);
 
         return result;
+    }
+
+    public static Bitmap getCircularCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
     }
 }
