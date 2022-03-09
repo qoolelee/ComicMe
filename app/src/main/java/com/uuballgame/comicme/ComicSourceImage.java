@@ -13,4 +13,5 @@ public class ComicSourceImage implements Serializable {
         this.thumbnailBitmapBase64 = thumbnailBitmapStr;
         this.photoPath = photoPath;
     }
+
 }

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.exifinterface.media.ExifInterface;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -47,6 +49,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -60,8 +63,8 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     private ComicFilter comicFilter;
     private ComicSourceImage comicSourceImage;
     private Bitmap originalBitmap;
-    private ImageView okButton;
-    private ImageView noButton;
+    private ImageButton okButton;
+    private ImageButton noButton;
     private View.OnClickListener okListener, noListener;
     private static final String CROPPED_FILE_NAME = "img_" + Constants.COMIC_ME_UUID + "_";
     private static final int NORMALIZED_PIC_WIDTH = 400;
@@ -82,8 +85,19 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Get the dimensions of the bitmap
+        ExifInterface ei = null;
+        int orientation = 0;
         if(comicSourceImage.photoPath!=null) {
             originalBitmap = BitmapFactory.decodeFile(comicSourceImage.photoPath);
+
+            // normalize saved photo
+            try {
+                ei = new ExifInterface(comicSourceImage.photoPath);
+                orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         else{
             try {
@@ -92,8 +106,31 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                 e.printStackTrace();
                 finish();
             }
+
+            try (InputStream inputStream = this.getContentResolver().openInputStream(PictureCollectionActivity.SImageUrl)) {
+                ei = new ExifInterface(inputStream);
+                orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        if(originalBitmap.getWidth()>originalBitmap.getHeight())originalBitmap = Constants.rotateBitmap(originalBitmap, -90);
+
+        // rotate pic. and thumbnail
+        switch(orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                originalBitmap = Constants.rotateBitmap(originalBitmap, 90);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                originalBitmap = Constants.rotateBitmap(originalBitmap, 180);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                originalBitmap = Constants.rotateBitmap(originalBitmap, 270);
+                break;
+            default: // 0
+                break;
+        }
+
+        comicSourceImage.thumbnailBitmapBase64 = Constants.convert(Constants.scaleBitmap(originalBitmap, 100, 100));
 
         // enlarge 2 times the bitmap
         float bScale = 0.5f;

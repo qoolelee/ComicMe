@@ -137,10 +137,9 @@ public class ShowResultActivity extends AppCompatActivity {
         canvas.drawBitmap(src, 0, 0, null);
 
         Bitmap bitmapOrg = Constants.convert(comicSourceImage.thumbnailBitmapBase64);
-        bitmapOrg = Constants.rotateBitmap(bitmapOrg, -90);
         bitmapOrg = Constants.scaleBitmap(bitmapOrg, 1.2f);
         bitmapOrg = Constants.getCircularCroppedBitmap(bitmapOrg);
-        canvas.drawBitmap(bitmapOrg, 60, 10, null);
+        canvas.drawBitmap(bitmapOrg, 60, 20, null);
 
         return result;
     }

@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -259,7 +260,7 @@ public class PictureCollectionActivity extends AppCompatActivity {
         else if(requestCode == REQUEST_IMAGE_GALLERY && resultCode == Activity.RESULT_OK){
             // Get the url of the image from data
             Uri selectedImageUri = data.getData();
-            if (null != selectedImageUri) {
+            if (selectedImageUri != null) {
                 // update adaptor, start process image activity
                 startProcessImageActivity(selectedImageUri);
             }
@@ -288,7 +289,22 @@ public class PictureCollectionActivity extends AppCompatActivity {
 
     private void updateAdaptorAndStartProcessImageActivity() {
         // read back the image file and scale it to thumbnail
+        int orientation = getPicOrientation();
         Bitmap scaledBitmap = Constants.getScaledBitmap(currentPhotoFilePath, 100, 100);
+        // rotate pic. and thumbnail
+        switch(orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                scaledBitmap = Constants.rotateBitmap(scaledBitmap, 90);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                scaledBitmap = Constants.rotateBitmap(scaledBitmap, 180);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                scaledBitmap = Constants.rotateBitmap(scaledBitmap, 270);
+                break;
+            default: // 0
+                break;
+        }
         ComicSourceImage comicSourceImage = new ComicSourceImage(Constants.convert(scaledBitmap), currentPhotoFilePath);
 
         // adapter changed
@@ -309,6 +325,18 @@ public class PictureCollectionActivity extends AppCompatActivity {
         imageDetailedActivityIntent.putExtra("ComicSourceImage", comicSourceImage);
         imageDetailedActivityIntent.putExtra("ComicFilter", comicFilter);
         startActivityForResult(imageDetailedActivityIntent, PictureCollectionActivity.REQUEST_IMAGE_PROCESS);
+    }
+
+    private int getPicOrientation() {
+        ExifInterface ei = null;
+        int result = 0;
+        try {
+            ei = new ExifInterface(currentPhotoFilePath);
+            result = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private List<ComicSourceImage> getSavedComicSourceImages() {

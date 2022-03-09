@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -19,6 +20,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,6 +35,7 @@ import java.util.concurrent.Executors;
 public class CameraActivity extends AppCompatActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     ImageCapture imageCapture;
+    ImageAnalysis imageAnalysis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +128,12 @@ public class CameraActivity extends AppCompatActivity {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build();
 
+        imageAnalysis = new ImageAnalysis.Builder()
+                        .setTargetResolution(new Size(1280, 720))
+                        .build();
+
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this
-                , cameraSelector, imageCapture, preview);
+                , cameraSelector, imageCapture, imageAnalysis, preview);
 
         // set camera zoom max
         CameraControl cameraControl = camera.getCameraControl();

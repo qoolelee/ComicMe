@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/camera_picture"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,6 +22,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:layout_constraintBottom_toBottomOf="@id/camera_picture"
+        app:layout_constraintTop_toTopOf="@id/camera_picture"
         app:layout_constraintStart_toEndOf="@id/camera_picture"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_popup_sync" />

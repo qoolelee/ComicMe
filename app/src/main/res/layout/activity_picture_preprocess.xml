@@ -7,27 +7,27 @@
     android:background="@color/black"
     tools:context=".PicturePreprocessActivity">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/process_image_yes"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/yes_hook" />
+        android:background="@drawable/yes_hook" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/process_image_no"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/no_hook" />
+        android:background="@drawable/no_hook" />
 
 
     <com.cuneytayyildiz.gestureimageview.GestureImageView
