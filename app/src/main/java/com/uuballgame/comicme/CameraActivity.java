@@ -129,7 +129,7 @@ public class CameraActivity extends AppCompatActivity {
                 .build();
 
         imageAnalysis = new ImageAnalysis.Builder()
-                        .setTargetResolution(new Size(1280, 720))
+                        .setTargetResolution(new Size(1920, 1080))
                         .build();
 
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this

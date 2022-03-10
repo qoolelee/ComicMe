@@ -10,11 +10,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,7 +31,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.cuneytayyildiz.gestureimageview.GestureImageView;
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -67,7 +68,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     private ImageButton noButton;
     private View.OnClickListener okListener, noListener;
     private static final String CROPPED_FILE_NAME = "img_" + Constants.COMIC_ME_UUID + "_";
-    private static final int NORMALIZED_PIC_WIDTH = 400;
+    private static final int NORMALIZED_PIC_WIDTH = 512;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,27 +134,51 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         comicSourceImage.thumbnailBitmapBase64 = Constants.convert(Constants.scaleBitmap(originalBitmap, 100, 100));
 
         // enlarge 2 times the bitmap
-        float bScale = 0.5f;
-        originalBitmap = Constants.enlargeBmap(originalBitmap, bScale);
+        Bitmap smallerBmap = Constants.scaleBitmap(originalBitmap, 0.5f);
+        float bScale = 2.0f;
+        Bitmap enlargedBitmap = Constants.enlargeBmap(smallerBmap, bScale);
 
-        GestureImageView pictureView = findViewById(R.id.image_detailed_picture_view);
-        pictureView.setImageBitmap(originalBitmap);
+        SubsamplingScaleImageView pictureView = findViewById(R.id.image_detailed_picture_view);
+        pictureView.setImage(ImageSource.bitmap(enlargedBitmap));
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        //int height = displayMetrics.heightPixels;
-        int vWidth = displayMetrics.widthPixels;
-        //float vWidth = pictureView.getWidth();
-        float iWidth = pictureView.getImageWidth();
-        float sScale = vWidth / (iWidth * bScale);
-        pictureView.setStartingScale(sScale);
+        pictureView.setOnImageEventListener(new SubsamplingScaleImageView.OnImageEventListener() {
+            @Override
+            public void onReady() {
+                centerFacePos(pictureView, enlargedBitmap);
+            }
+
+            @Override
+            public void onImageLoaded() {
+
+            }
+
+            @Override
+            public void onPreviewLoadError(Exception e) {
+
+            }
+
+            @Override
+            public void onImageLoadError(Exception e) {
+
+            }
+
+            @Override
+            public void onTileLoadError(Exception e) {
+
+            }
+
+            @Override
+            public void onPreviewReleased() {
+
+            }
+        });
 
         // bitmap check and crop
         okListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap cropedBitmap = getFramedBitmap(pictureView);
-                uploadPicture(cropedBitmap);
+                Bitmap croppedBitmap = getFramedBitmap(pictureView , enlargedBitmap);
+                uploadPicture(croppedBitmap);
             }
         };
         okButton = findViewById(R.id.process_image_yes);
@@ -169,6 +194,78 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         noButton = findViewById(R.id.process_image_no);
         noButton.setOnClickListener(noListener);
 
+    }
+
+    private void centerFacePos(SubsamplingScaleImageView pictureView, Bitmap bitmap) {
+        FaceDetectorOptions lowAccuracyOpts = new FaceDetectorOptions.Builder()
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+                .build();
+
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+        FaceDetector detector = FaceDetection.getClient(lowAccuracyOpts);
+
+        Task<List<Face>> result = detector.process(image)
+                .addOnSuccessListener(new OnSuccessListener<List<Face>>() {
+                    @Override
+                    public void onSuccess(List<Face> faces) {
+                        // Task completed successfully
+                        // 2. picture had no face
+                        if(faces.size()<=0){
+                            setAlertText(ERROR002);
+                            return;
+                        }
+
+                        // 3. if picture had two or more faces
+                        if(faces.size() >= 2){
+                            setAlertText(ERROR003);
+                            return;
+                        }
+
+                        // 4. head width ratio in picture
+                        Face face = faces.get(0);
+
+                        // 5. face direction
+                        float rotY = face.getHeadEulerAngleY();
+                        float rotX = face.getHeadEulerAngleX();
+                        if(rotY >= MAX_FACE_ROTY || rotY <= -MAX_FACE_ROTY
+                                || rotX >= MAX_FACE_ROTX || rotX <= -MAX_FACE_ROTX){
+                            setAlertText(ERROR005);
+                            return;
+                        }
+
+                        // if all pass show progress bar, and start to move and scale
+                        // move
+                        Rect rect = face.getBoundingBox();
+                        float scale = (float)pictureView.getWidth()/((float)rect.width() * 2.0f);
+                        pictureView.animateScaleAndCenter(scale, new PointF(rect.centerX(), rect.centerY()))
+                                .withDuration(1000)
+                                .withEasing(SubsamplingScaleImageView.EASE_OUT_QUAD)
+                                .withInterruptible(false)
+                                .start();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Task failed with an exception
+                        setAlertText(ERROR007);
+                    }
+                });
+
+    }
+
+    // over ride this method to finish current activity
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
     }
 
 
@@ -336,52 +433,30 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         setMusk(View.GONE);
     }
 
-    private float orgX,orgY;
-    private Bitmap getFramedBitmap(GestureImageView pictureView) {
-        float viewWidth = pictureView.getWidth();
-        float viewHeight = pictureView.getHeight();
-        float imageX = pictureView.getImageX();
-        float imageY = pictureView.getImageY();
-        if(orgX == 0.0f){
-            orgX = viewWidth / 2.0f;
-            orgY = viewHeight / 2.0f;
-        }
-        float imageWidth = pictureView.getImageWidth();
-        float imageHeight = pictureView.getImageHeight();
-        float sScale = pictureView.getScale();
 
-        //sScale = vWidth / (iWidth * bScale)
-        float frameWidth = 300.0f / 380.0f * viewWidth / sScale;
+    private Bitmap getFramedBitmap(SubsamplingScaleImageView pictureView, Bitmap bitmap) {
+        float scale = pictureView.getScale();
+        PointF centerPoint = pictureView.getCenter();
+
+        float ratio = 300.0f/ 380.0f;
+        float frameWidth = ratio * (float)pictureView.getWidth() / scale ;
+        //float frameHeight = ratio * (float)pictureView.getHeight() / scale;
         float frameHeight = frameWidth;
-        float shiftX = orgX - imageX;
-        float shiftY = orgY - imageY;
+        float left = centerPoint.x - frameWidth / 2.0f;
+        float top = centerPoint.y - frameHeight / 2.0f;
 
-        float centerXImage = imageWidth / 2.0f + shiftX / sScale;
-        float centerYImage = imageHeight / 2.0f + shiftY / sScale;
-
-        int left = (int)(centerXImage - (frameWidth / 2.0f));
-        int top = (int)(centerYImage - (frameHeight / 2.0f));
-
-        Bitmap resultBitmap = Bitmap.createBitmap(originalBitmap, left, top, (int)frameWidth, (int)frameHeight);
+        Bitmap resultBitmap = Bitmap.createBitmap(bitmap, (int)left, (int)top, (int)frameWidth, (int)frameHeight);
 
         return resultBitmap;
+
     }
 
 
-    // over ride this method to finish current activity
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return true;
-    }
 
     private void startUploading(Bitmap bitmap) {
         // normalize to NORMALIZED_PIC_WIDTH
         bitmap = Constants.scaleBitmap(bitmap, NORMALIZED_PIC_WIDTH, NORMALIZED_PIC_WIDTH);
+        PictureCollectionActivity.LASTBitmap = bitmap;
 
         // upload bitmap to server
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

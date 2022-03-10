@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -106,7 +108,7 @@ public class ShowResultActivity extends AppCompatActivity {
     }
 
     private void muskBitmap() {
-        Bitmap bitmap = addOriginal(ORIGINAL_PIC, comicSourceImage, org_bitmap);
+        Bitmap bitmap = addOriginal(ORIGINAL_PIC, org_bitmap);
         if(!Constants.PRO_USER){
             waterMarked(bitmap);
             return;
@@ -126,8 +128,13 @@ public class ShowResultActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(shareIntent, null));
     }
 
-    private Bitmap addOriginal(boolean originalPic, ComicSourceImage comicSourceImage, Bitmap src) {
+    private Bitmap addOriginal(boolean originalPic, Bitmap src) {
         if(!originalPic)return src;
+
+        float xShift = 60.0f;
+        float yShift = 25.0f;
+        float circleRadius = 60.0f;
+        float circleMargin = 4.0f;
 
         int w = src.getWidth();
         int h = src.getHeight();
@@ -136,10 +143,14 @@ public class ShowResultActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(src, 0, 0, null);
 
-        Bitmap bitmapOrg = Constants.convert(comicSourceImage.thumbnailBitmapBase64);
-        bitmapOrg = Constants.scaleBitmap(bitmapOrg, 1.2f);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(Color.WHITE);
+        canvas.drawCircle((xShift+(xShift+2*circleMargin+2*circleRadius))/2.0f, (yShift+(yShift+2*circleMargin+2*circleRadius))/2.0f, circleMargin+circleRadius, paint);
+
+        Bitmap bitmapOrg = Constants.scaleBitmap(PictureCollectionActivity.LASTBitmap, (int)circleRadius*2, (int)circleRadius*2);
         bitmapOrg = Constants.getCircularCroppedBitmap(bitmapOrg);
-        canvas.drawBitmap(bitmapOrg, 60, 20, null);
+        canvas.drawBitmap(bitmapOrg, xShift+circleMargin, yShift+circleMargin, null);
 
         return result;
     }

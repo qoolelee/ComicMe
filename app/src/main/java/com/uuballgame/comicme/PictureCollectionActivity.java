@@ -40,6 +40,8 @@ import java.util.List;
 
 public class PictureCollectionActivity extends AppCompatActivity {
     public static Uri SImageUrl = null;
+    public static Bitmap LASTBitmap = null;
+
     public static Boolean Back_Home = false;
 
     public static final int REQUEST_IMAGE_CAPTURE = 1888;

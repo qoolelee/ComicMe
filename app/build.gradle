@@ -43,8 +43,8 @@ dependencies {
     implementation 'jp.wasabeef:glide-transformations:4.1.0'
     // If you want to use the GPU Filters
     implementation 'jp.co.cyberagent.android:gpuimage:2.0.4'
-    implementation 'com.cuneytayyildiz:gestureimageview:1.0.0'
-    implementation 'com.google.mlkit:face-detection:16.1.4'
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
+    implementation 'com.google.mlkit:face-detection:16.1.5'
 
     // CameraX core library using the camera2 implementation
     def camerax_version = "1.0.2"
