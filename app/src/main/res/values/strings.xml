@@ -44,4 +44,8 @@
     <string name="show_detail_buy_no_watermark">Buy pro for water mark removed</string>
     <string name="action_home">Home</string>
     <string name="show_detail_toggle_note">Picture</string>
+    <string name="show_result_save_to_disk">Save to gallery?</string>
+    <string name="show_result_confirm">SAVE</string>
+    <string name="show_result_cancel">CANCEL</string>
+    <string name="show_result_pic_saved">Picture saved.</string>
 </resources>

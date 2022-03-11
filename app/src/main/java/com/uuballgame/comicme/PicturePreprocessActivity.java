@@ -141,6 +141,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         SubsamplingScaleImageView pictureView = findViewById(R.id.image_detailed_picture_view);
         pictureView.setImage(ImageSource.bitmap(enlargedBitmap));
 
+
         pictureView.setOnImageEventListener(new SubsamplingScaleImageView.OnImageEventListener() {
             @Override
             public void onReady() {

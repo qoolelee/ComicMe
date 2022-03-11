@@ -29,9 +29,20 @@
         android:background="@drawable/toggle_switch_on"
         android:scaleType="fitCenter"
         app:layout_constraintDimensionRatio="2:1"
-        app:layout_constraintEnd_toStartOf="@id/show_detail_button_share"
+        app:layout_constraintEnd_toStartOf="@id/show_detail_button_save"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/show_detail_button_share" />
+
+    <ImageButton
+        android:id="@+id/show_detail_button_save"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="20dp"
+        android:background="@drawable/icon_save_white"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toStartOf="@id/show_detail_button_share"
+        app:layout_constraintStart_toEndOf="@id/show_detail_button_toggle_original"
         app:layout_constraintTop_toTopOf="@id/show_detail_button_share" />
 
     <ImageButton
@@ -40,7 +51,7 @@
         android:layout_height="60dp"
         android:background="@drawable/icon_share_white"
         android:scaleType="fitCenter"
-        app:layout_constraintStart_toEndOf="@id/show_detail_button_toggle_original"
+        app:layout_constraintStart_toEndOf="@id/show_detail_button_save"
         android:layout_marginRight="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="20dp"
