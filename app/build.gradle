@@ -45,6 +45,7 @@ dependencies {
     implementation 'jp.co.cyberagent.android:gpuimage:2.0.4'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
     implementation 'com.google.mlkit:face-detection:16.1.5'
+    implementation 'com.google.mlkit:segmentation-selfie:16.0.0-beta4'
 
     // CameraX core library using the camera2 implementation
     def camerax_version = "1.0.2"

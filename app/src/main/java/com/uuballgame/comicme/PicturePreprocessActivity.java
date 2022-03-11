@@ -43,6 +43,10 @@ import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.face.FaceLandmark;
+import com.google.mlkit.vision.segmentation.Segmentation;
+import com.google.mlkit.vision.segmentation.SegmentationMask;
+import com.google.mlkit.vision.segmentation.Segmenter;
+import com.google.mlkit.vision.segmentation.selfie.SelfieSegmenterOptions;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -54,6 +58,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -133,68 +138,76 @@ public class PicturePreprocessActivity extends AppCompatActivity {
 
         comicSourceImage.thumbnailBitmapBase64 = Constants.convert(Constants.scaleBitmap(originalBitmap, 100, 100));
 
+        // normalize bitmap
+        normalizeBitmap(originalBitmap); // 1080 * 1920 min. sized and musked
+
+    }
+
+    private void normalizeBitmap(Bitmap originalBitmap) {
+        // sized
+        float w = 1080.0f; // default normalized width
+        float h = 1920.0f; // default normalized height
+        float ratio = 1.0f;
+
+        if(originalBitmap.getWidth()>=originalBitmap.getHeight()){
+            ratio = w/(float) originalBitmap.getWidth();
+        }
+        else{
+            ratio = h/(float) originalBitmap.getHeight();
+        }
+
+        Bitmap nBitmap = Constants.scaleBitmap(originalBitmap, ratio);
+
+        // musked
+        SelfieSegmenterOptions options =
+                new SelfieSegmenterOptions.Builder()
+                        .setDetectorMode(SelfieSegmenterOptions.SINGLE_IMAGE_MODE)
+                        .build();
+
+        Segmenter segmenter = Segmentation.getClient(options);
+        InputImage image = InputImage.fromBitmap(nBitmap, 0);
+
+        Task<SegmentationMask> result =
+                segmenter.process(image)
+                        .addOnSuccessListener(
+                                new OnSuccessListener<SegmentationMask>() {
+                                    @Override
+                                    public void onSuccess(SegmentationMask mask) {
+                                        // Task completed successfully
+                                        // get musked bitmap
+                                        Bitmap muskedBitmap = getMuskedBitmap(nBitmap, mask);
+
+                                        findFace(muskedBitmap);
+                                    }
+                                })
+                        .addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Task failed with an exception
+                                        // ...
+                                    }
+                                });
+
+    }
+
+    private Bitmap getMuskedBitmap(Bitmap nBitmap, SegmentationMask mask) {
+        Log.i("BSize-------->", String.valueOf(nBitmap.getWidth())+" , "+String.valueOf(nBitmap.getHeight()));
+        Log.i("MSize-------->", String.valueOf(mask.getWidth())+" , "+String.valueOf(mask.getHeight()));
+
+
+
+        return nBitmap;
+    }
+
+    private void findFace(Bitmap muskedBitmap) {
         // enlarge 2 times the bitmap
-        Bitmap smallerBmap = Constants.scaleBitmap(originalBitmap, 0.5f);
-        float bScale = 2.0f;
-        Bitmap enlargedBitmap = Constants.enlargeBmap(smallerBmap, bScale);
+        Bitmap enlargedBitmap = Constants.enlargeBmap(muskedBitmap, 2.0f);
 
         SubsamplingScaleImageView pictureView = findViewById(R.id.image_detailed_picture_view);
         pictureView.setImage(ImageSource.bitmap(enlargedBitmap));
 
-
-        pictureView.setOnImageEventListener(new SubsamplingScaleImageView.OnImageEventListener() {
-            @Override
-            public void onReady() {
-                centerFacePos(pictureView, enlargedBitmap);
-            }
-
-            @Override
-            public void onImageLoaded() {
-
-            }
-
-            @Override
-            public void onPreviewLoadError(Exception e) {
-
-            }
-
-            @Override
-            public void onImageLoadError(Exception e) {
-
-            }
-
-            @Override
-            public void onTileLoadError(Exception e) {
-
-            }
-
-            @Override
-            public void onPreviewReleased() {
-
-            }
-        });
-
-        // bitmap check and crop
-        okListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bitmap croppedBitmap = getFramedBitmap(pictureView , enlargedBitmap);
-                uploadPicture(croppedBitmap);
-            }
-        };
-        okButton = findViewById(R.id.process_image_yes);
-        okButton.setOnClickListener(okListener);
-
-        // return to PictureCollectionActivity
-        noListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        };
-        noButton = findViewById(R.id.process_image_no);
-        noButton.setOnClickListener(noListener);
-
+        centerFacePos(pictureView, enlargedBitmap);
     }
 
     private void centerFacePos(SubsamplingScaleImageView pictureView, Bitmap bitmap) {
@@ -245,6 +258,27 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                                 .withEasing(SubsamplingScaleImageView.EASE_OUT_QUAD)
                                 .withInterruptible(false)
                                 .start();
+
+                        // bitmap check and crop
+                        okListener = new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Bitmap croppedBitmap = getFramedBitmap(pictureView , bitmap);
+                                uploadPicture(croppedBitmap);
+                            }
+                        };
+                        okButton = findViewById(R.id.process_image_yes);
+                        okButton.setOnClickListener(okListener);
+
+                        // return to PictureCollectionActivity
+                        noListener = new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                finish();
+                            }
+                        };
+                        noButton = findViewById(R.id.process_image_no);
+                        noButton.setOnClickListener(noListener);
 
                     }
                 })
@@ -451,7 +485,6 @@ public class PicturePreprocessActivity extends AppCompatActivity {
         return resultBitmap;
 
     }
-
 
 
     private void startUploading(Bitmap bitmap) {
