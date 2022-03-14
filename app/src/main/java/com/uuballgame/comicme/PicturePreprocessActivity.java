@@ -1,20 +1,28 @@
 package com.uuballgame.comicme;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.exifinterface.media.ExifInterface;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,6 +68,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -191,13 +200,87 @@ public class PicturePreprocessActivity extends AppCompatActivity {
 
     }
 
-    private Bitmap getMuskedBitmap(Bitmap nBitmap, SegmentationMask mask) {
-        Log.i("BSize-------->", String.valueOf(nBitmap.getWidth())+" , "+String.valueOf(nBitmap.getHeight()));
-        Log.i("MSize-------->", String.valueOf(mask.getWidth())+" , "+String.valueOf(mask.getHeight()));
+    private Bitmap getMuskedBitmap(Bitmap nBitmap, SegmentationMask segmentationMask) {
+        Bitmap result = null;
 
+        // blur
+        Bitmap bBitmap = Bitmap.createBitmap(nBitmap);
+        bBitmap = Constants.scaleBitmap(bBitmap, 0.1f);
+        bBitmap = Constants.scaleBitmap(bBitmap, 10f);
+        bBitmap = BlurImage(bBitmap);
 
+        // musked
+        int maskWidth = segmentationMask.getWidth();
+        int maskHeight = segmentationMask.getHeight();
+        Bitmap bitmap = Bitmap.createBitmap(maskColorsFromByteBuffer(segmentationMask, nBitmap, bBitmap),
+                maskWidth, maskHeight, Bitmap.Config.ARGB_8888);
 
-        return nBitmap;
+        return bitmap;
+    }
+
+    /** Converts byteBuffer floats to ColorInt array that can be used as a mask. */
+    @ColorInt
+    private int[] maskColorsFromByteBuffer(SegmentationMask segmentationMask, Bitmap nBitmap, Bitmap bBitmap) {
+
+        int maskWidth = nBitmap.getWidth();
+        int maskHeight = nBitmap.getHeight();
+
+        int[] npixels = new int[maskWidth * maskHeight];
+        nBitmap.getPixels(npixels, 0, maskWidth, 0, 0, maskWidth, maskHeight);
+
+        int[] bpixels = new int[maskWidth * maskHeight];
+        bBitmap.getPixels(bpixels, 0, maskWidth, 0, 0, maskWidth, maskHeight);
+
+        ByteBuffer maskByteBuffer = segmentationMask.getBuffer();
+
+        @ColorInt int[] colors = new int[maskWidth * maskHeight];
+        for (int i = 0; i < maskWidth * maskHeight; i++) {
+            float backgroundLikelihood = 1 - maskByteBuffer.getFloat();
+            if (backgroundLikelihood > 0.9) {
+                //colors[i] = Color.argb(0, 255, 255, 255);
+                colors[i] = Color.argb(255, (bpixels[i] >> 16) & 0xff, (bpixels[i] >> 8) & 0xff, (bpixels[i] ) & 0xff);
+            }
+            //else if (backgroundLikelihood > 0.2) {
+                // Linear interpolation to make sure when backgroundLikelihood is 0.2, the alpha is 0 and
+                // when backgroundLikelihood is 0.9, the alpha is 128.
+                // +0.5 to round the float value to the nearest int.
+                //int alpha = (int) (182.9 * backgroundLikelihood - 36.6 + 0.5);
+                //colors[i] = Color.argb(alpha, 0, 0, 0);
+            //}
+            else{
+                //colors[i] = Color.argb(255, 255, 255, 255);
+                colors[i] = Color.argb(255, (npixels[i] >> 16) & 0xff, (npixels[i] >> 8) & 0xff, (npixels[i] ) & 0xff);
+            }
+        }
+        return colors;
+    }
+
+    @SuppressLint("NewApi")
+    Bitmap BlurImage (Bitmap input)
+    {
+        try
+        {
+            RenderScript rsScript = RenderScript.create(getApplicationContext());
+            Allocation alloc = Allocation.createFromBitmap(rsScript, input);
+
+            ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rsScript,   Element.U8_4(rsScript));
+            blur.setRadius(23);
+            blur.setInput(alloc);
+
+            Bitmap result = Bitmap.createBitmap(input.getWidth(), input.getHeight(), Bitmap.Config.ARGB_8888);
+            Allocation outAlloc = Allocation.createFromBitmap(rsScript, result);
+
+            blur.forEach(outAlloc);
+            outAlloc.copyTo(result);
+
+            rsScript.destroy();
+            return result;
+        }
+        catch (Exception e) {
+            // TODO: handle exception
+            return input;
+        }
+
     }
 
     private void findFace(Bitmap muskedBitmap) {
