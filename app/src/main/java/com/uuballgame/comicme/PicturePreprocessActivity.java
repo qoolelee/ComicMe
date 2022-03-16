@@ -184,9 +184,10 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                                     public void onSuccess(SegmentationMask mask) {
                                         // Task completed successfully
                                         // get musked bitmap
-                                        Bitmap muskedBitmap = getMuskedBitmap(nBitmap, mask);
+                                        //Bitmap muskedBitmap = getMuskedBitmap(nBitmap, mask);
 
-                                        findFace(muskedBitmap);
+                                        //findFace(muskedBitmap);
+                                        findFace(nBitmap);
                                     }
                                 })
                         .addOnFailureListener(

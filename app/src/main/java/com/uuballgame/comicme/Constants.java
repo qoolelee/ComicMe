@@ -33,7 +33,7 @@ public class Constants {
     public static String USER_PASSWORD = "guestPass";
     public static Boolean PRO_USER = false;
 
-    public static final String SERVER_IP = "http://34.105.126.48";
+    public static final String SERVER_IP = "https://kooler.com.tw";
     public static final String GET_NEW_UUID_URL = SERVER_IP + "/ComicMe/Api/getNewUUID.php";
     public static final String GET_FILTERS_DATA_LIST_URL = SERVER_IP + "/ComicMe/Api/getComicFiltersList.php";
     public static final String IMAGE_UPLOAD_PHP_URL = SERVER_IP + "/ComicMe/Api/uploadImage.php";
