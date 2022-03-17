@@ -9,17 +9,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.widget.ProgressBar;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -27,9 +21,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class LobbyActivity extends AppCompatActivity {
     private int currentApiVersion;
@@ -108,10 +99,14 @@ public class LobbyActivity extends AppCompatActivity {
     class NewUUID{
         public String result;
         public String uuid;
+        public String username;
+        public String password;
 
-        public NewUUID(String res, String id){
-            result = res;
-            uuid = id;
+        public NewUUID(String res, String uuid, String username, String password){
+            this.result = res;
+            this.uuid = uuid;
+            this.username = username;
+            this.password = password;
         }
     }
 
@@ -127,12 +122,12 @@ public class LobbyActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         // set uuid
                         NewUUID newUUID = new Gson().fromJson(response, NewUUID.class);
-                        Constants.COMIC_ME_UUID = newUUID.uuid;
+                        Constants.NEW_UUID = newUUID;
 
                         // save to preference
                         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.comic_me_app), Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString("comic_me_uuid", newUUID.uuid);
+                        editor.putString("comic_me_uuid", response);
                         editor.apply();
                     }
                 }, new Response.ErrorListener() {
@@ -148,12 +143,15 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
 
-    private String getSavedUUID() {
+    private NewUUID getSavedUUID() {
         // read back str from shared preferences
         SharedPreferences sharedPref = getSharedPreferences(getResources().getString(R.string.comic_me_app), Context.MODE_PRIVATE);
-        String uuid = sharedPref.getString("comic_me_uuid", null);
-        Constants.COMIC_ME_UUID = uuid;
-        return uuid;
+        String response = sharedPref.getString("comic_me_uuid", null);
+
+        NewUUID newUUID = new Gson().fromJson(response, NewUUID.class);
+        Constants.NEW_UUID = newUUID;
+
+        return newUUID;
     }
 
     private void Alert(String alertMessage) {

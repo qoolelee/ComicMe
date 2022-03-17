@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -68,7 +67,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +79,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     private ImageButton okButton;
     private ImageButton noButton;
     private View.OnClickListener okListener, noListener;
-    private static final String CROPPED_FILE_NAME = "img_" + Constants.COMIC_ME_UUID + "_";
+    private static final String CROPPED_FILE_NAME = "img_" + Constants.NEW_UUID.uuid + "_";
     private static final int NORMALIZED_PIC_WIDTH = 512;
 
     @Override

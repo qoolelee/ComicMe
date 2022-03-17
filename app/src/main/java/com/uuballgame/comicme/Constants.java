@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Constants {
-    public static String COMIC_ME_UUID;
+    public static LobbyActivity.NewUUID NEW_UUID;
     public static String USER_NAME = "guest";
     public static String USER_PASSWORD = "guestPass";
     public static Boolean PRO_USER = false;
