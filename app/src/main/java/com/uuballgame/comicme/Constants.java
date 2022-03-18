@@ -28,13 +28,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Constants {
-    public static LobbyActivity.NewUUID NEW_UUID;
+    public static String TOKEN = "";
+    public static AllComicFiltersFragment.NewUUID NEW_UUID;
     public static String USER_NAME = "guest";
     public static String USER_PASSWORD = "guestPass";
     public static Boolean PRO_USER = false;
 
     public static final String SERVER_IP = "https://kooler.com.tw";
     public static final String GET_NEW_UUID_URL = SERVER_IP + "/ComicMe/Api/getNewUUID.php";
+    public static final String LOGIN_URL = SERVER_IP + "/ComicMe/Api/login.php";
     public static final String GET_FILTERS_DATA_LIST_URL = SERVER_IP + "/ComicMe/Api/getComicFiltersList.php";
     public static final String IMAGE_UPLOAD_PHP_URL = SERVER_IP + "/ComicMe/Api/uploadImage.php";
     public static final String START_PICTURE_PROCESS_URL = SERVER_IP + "/ComicMe/Api/startImageProcess.php";

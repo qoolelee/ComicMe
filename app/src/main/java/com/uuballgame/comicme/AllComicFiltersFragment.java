@@ -1,6 +1,8 @@
 package com.uuballgame.comicme;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -100,13 +102,15 @@ public class AllComicFiltersFragment extends Fragment {
         // set layout manager to position the items
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-        // get filter list from server
-        getUpdatedFilters(view, filterAdapter);
+        // check uuid if exist
+        if(getSavedUUID(view, filterAdapter) == null){
+            getNewUUID(view, filterAdapter);
+        }
 
         return view;
     }
 
-    private void getUpdatedFilters(View view, AllComicFiltersAdapter filterAdapter) {
+    public void getUpdatedFilters(View view, AllComicFiltersAdapter filterAdapter) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getContext());
         String url = Constants.GET_FILTERS_DATA_LIST_URL;
@@ -120,8 +124,10 @@ public class AllComicFiltersFragment extends Fragment {
                         ProgressBar progressBar = view.findViewById(R.id.progressBar1);
                         progressBar.setVisibility(View.GONE);
 
-                        // update lists
-                        updateAllComicsFilters(response, filterAdapter);
+                        if(response.length()>30) {
+                            // update lists
+                            updateAllComicsFilters(response, filterAdapter);
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -135,15 +141,25 @@ public class AllComicFiltersFragment extends Fragment {
             }
         })
         {
+            // post form items
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("UserName", "guest");
-                map.put("UserPassword", "guestpass");
+                map.put("username", Constants.NEW_UUID.username);
+                map.put("password", Constants.NEW_UUID.password);
                 return map;
             }
 
-        };
+            //This is for Headers If You Needed
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "Bearer " + Constants.TOKEN);
+                return params;
+            }
+
+        }
+        ;
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
@@ -179,4 +195,139 @@ public class AllComicFiltersFragment extends Fragment {
 
         builder.create().show();
     }
+
+    class NewUUID{
+        public String result;
+        public String uuid;
+        public String username;
+        public String password;
+
+        public NewUUID(String res, String uuid, String username, String password){
+            this.result = res;
+            this.uuid = uuid;
+            this.username = username;
+            this.password = password;
+        }
+    }
+
+    private NewUUID getSavedUUID(View view, AllComicFiltersAdapter filterAdapter) {
+        // read back str from shared preferences
+        SharedPreferences sharedPref = getContext().getSharedPreferences(getResources().getString(R.string.comic_me_app), Context.MODE_PRIVATE);
+        String response = sharedPref.getString("comic_me_uuid", null);
+
+        NewUUID newUUID = new Gson().fromJson(response, NewUUID.class);
+        Constants.NEW_UUID = newUUID;
+
+        // login to get token
+        loginGetToken(newUUID, view, filterAdapter);
+
+        return newUUID;
+    }
+
+    private void getNewUUID(View view, AllComicFiltersAdapter filterAdapter) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = Constants.GET_NEW_UUID_URL;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // set uuid
+                        NewUUID newUUID = new Gson().fromJson(response, NewUUID.class);
+                        Constants.NEW_UUID = newUUID;
+
+                        // save to preference
+                        SharedPreferences sharedPref = getContext().getSharedPreferences(getString(R.string.comic_me_app), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("comic_me_uuid", response);
+                        editor.apply();
+
+                        // login to get token
+                        loginGetToken(newUUID, view, filterAdapter);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // alert
+                Alert(getResources().getString(R.string.server_maintain_please_try_again));
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+
+    private class ResultToken{
+        String result;
+        String token;
+
+        public ResultToken(String r, String t){
+            result = r;
+            token = t;
+        }
+    }
+
+    private void loginGetToken(NewUUID newUUID, View view, AllComicFiltersAdapter filterAdapter) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = Constants.LOGIN_URL;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // set uuid
+                        ResultToken resultToken = new Gson().fromJson(response, ResultToken.class);
+                        if(resultToken.result.equals("success")) {
+                            Constants.TOKEN = resultToken.token;
+
+                            // get comic filter list
+                            getUpdatedFilters(view, filterAdapter);
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // alert
+                Alert(getResources().getString(R.string.server_maintain_please_try_again));
+            }
+        })
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("username", newUUID.username);
+                map.put("passsword", newUUID.password);
+                map.put("uuid", newUUID.uuid);
+                return map;
+            }
+
+        };
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+
+
+    private void Alert(String alertMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage(alertMessage)
+                .setTitle(R.string.error)
+                .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        getActivity().finish();
+                    }
+                });
+
+        builder.create().show();
+    }
+
 }

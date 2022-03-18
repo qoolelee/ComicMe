@@ -726,6 +726,14 @@ public class PicturePreprocessActivity extends AppCompatActivity {
                 map.put("model", String.valueOf(comicFilter.id - 1)); // id minus 1
                 return map;
             }
+
+            //This is for Headers If You Needed
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "Bearer " + Constants.TOKEN);
+                return params;
+            }
         };
 
         // 20 seconds time out time
