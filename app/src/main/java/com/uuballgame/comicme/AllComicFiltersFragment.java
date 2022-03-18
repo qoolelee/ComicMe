@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,10 +30,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,6 +51,11 @@ public class AllComicFiltersFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    public View view;
+    public AllComicFiltersAdapter filterAdapter;
+    private ExecutorService executorService;
+
 
     public AllComicFiltersFragment() {
         // Required empty public constructor
@@ -83,7 +92,7 @@ public class AllComicFiltersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_all_comic_filter, container, false);
+        view = inflater.inflate(R.layout.fragment_all_comic_filter, container, false);
 
         // find recycler view in fragment
         RecyclerView recyclerView = view.findViewById(R.id.comic_filter_list);
@@ -96,21 +105,62 @@ public class AllComicFiltersFragment extends Fragment {
         // prepare data for adapter
         List<ComicFilter> comicFilters = Constants.COMIC_FILTERS_LIST;
         // Create the View holder adapter
-        AllComicFiltersAdapter filterAdapter = new AllComicFiltersAdapter(comicFilters);
+        filterAdapter = new AllComicFiltersAdapter(comicFilters);
         // attach adapter to recycler view
         recyclerView.setAdapter(filterAdapter);
         // set layout manager to position the items
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         // check uuid if exist
-        if(getSavedUUID(view, filterAdapter) == null){
-            getNewUUID(view, filterAdapter);
+        if(getSavedUUID() == null){
+            getNewUUID();
         }
+
+        executorService = Executors.newFixedThreadPool(1);
+        tokenRefreshAsyncTask();
 
         return view;
     }
 
-    public void getUpdatedFilters(View view, AllComicFiltersAdapter filterAdapter) {
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (!executorService.isShutdown()) {
+            executorService.shutdownNow();
+        }
+    }
+
+    private void tokenRefreshAsyncTask() {
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                // time consuming thread
+                try {
+                    Thread.sleep(550000); // token expired after 600 seconds
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                loginGetToken();
+
+                callMainThreadFunc();
+            }
+        });
+    }
+
+    private void callMainThreadFunc() {
+        Handler uiThread = new Handler(Looper.getMainLooper());
+        uiThread.post(new Runnable() {
+            @Override
+            public void run() {
+                // maint thread functions here
+                tokenRefreshAsyncTask();
+            }
+        });
+    }
+
+    public void getUpdatedFilters() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getContext());
         String url = Constants.GET_FILTERS_DATA_LIST_URL;
@@ -183,7 +233,7 @@ public class AllComicFiltersFragment extends Fragment {
                 .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        getUpdatedFilters(view, filterAdapter);
+                        getUpdatedFilters();
                     }
                 })
                 .setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
@@ -210,7 +260,7 @@ public class AllComicFiltersFragment extends Fragment {
         }
     }
 
-    private NewUUID getSavedUUID(View view, AllComicFiltersAdapter filterAdapter) {
+    private NewUUID getSavedUUID() {
         // read back str from shared preferences
         SharedPreferences sharedPref = getContext().getSharedPreferences(getResources().getString(R.string.comic_me_app), Context.MODE_PRIVATE);
         String response = sharedPref.getString("comic_me_uuid", null);
@@ -219,12 +269,12 @@ public class AllComicFiltersFragment extends Fragment {
         Constants.NEW_UUID = newUUID;
 
         // login to get token
-        loginGetToken(newUUID, view, filterAdapter);
+        loginGetToken();
 
         return newUUID;
     }
 
-    private void getNewUUID(View view, AllComicFiltersAdapter filterAdapter) {
+    private void getNewUUID() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getContext());
         String url = Constants.GET_NEW_UUID_URL;
@@ -245,7 +295,7 @@ public class AllComicFiltersFragment extends Fragment {
                         editor.apply();
 
                         // login to get token
-                        loginGetToken(newUUID, view, filterAdapter);
+                        loginGetToken();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -270,7 +320,7 @@ public class AllComicFiltersFragment extends Fragment {
         }
     }
 
-    private void loginGetToken(NewUUID newUUID, View view, AllComicFiltersAdapter filterAdapter) {
+    private void loginGetToken() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getContext());
         String url = Constants.LOGIN_URL;
@@ -285,8 +335,8 @@ public class AllComicFiltersFragment extends Fragment {
                         if(resultToken.result.equals("success")) {
                             Constants.TOKEN = resultToken.token;
 
-                            // get comic filter list
-                            getUpdatedFilters(view, filterAdapter);
+                            // get comic filter list first time
+                            if(Constants.COMIC_FILTERS_LIST.size()<1)getUpdatedFilters();
                         }
 
                     }
@@ -301,9 +351,9 @@ public class AllComicFiltersFragment extends Fragment {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("username", newUUID.username);
-                map.put("passsword", newUUID.password);
-                map.put("uuid", newUUID.uuid);
+                map.put("username", Constants.NEW_UUID.username);
+                map.put("passsword", Constants.NEW_UUID.password);
+                map.put("uuid", Constants.NEW_UUID.uuid);
                 return map;
             }
 
