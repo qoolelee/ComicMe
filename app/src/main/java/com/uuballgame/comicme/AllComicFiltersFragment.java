@@ -123,8 +123,8 @@ public class AllComicFiltersFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
 
         if (!executorService.isShutdown()) {
             executorService.shutdownNow();
@@ -208,8 +208,7 @@ public class AllComicFiltersFragment extends Fragment {
                 return params;
             }
 
-        }
-        ;
+        };
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
@@ -362,8 +361,6 @@ public class AllComicFiltersFragment extends Fragment {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-
-
 
     private void Alert(String alertMessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

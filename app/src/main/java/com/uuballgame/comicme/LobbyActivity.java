@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -43,8 +44,6 @@ public class LobbyActivity extends AppCompatActivity {
         collectionFragment = CollectionFragment.newInstance("","");
         getSupportFragmentManager().beginTransaction().replace(R.id.lobby_layout, collectionFragment).commit();
 
-
-
     }
 
 
@@ -59,7 +58,7 @@ public class LobbyActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_buy_pro:
-                //buyPro();
+                buyPro();
                 return true;
             case R.id.action_share:
                 //shareComicMe();
@@ -99,8 +98,26 @@ public class LobbyActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, "android.permission.WAKE_LOCK") == PackageManager.PERMISSION_GRANTED);
     }
 
+    private void buyPro(){
+        // register first
+        if(Constants.NEW_UUID.username.length()<1) {
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
+        }
+        else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getResources().getString(R.string.lobby_already_login))
+                    .setTitle(R.string.app_name)
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
 
-
+            builder.create().show();
+        }
+    }
 
 
 }

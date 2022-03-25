@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".StartRegisterActivity">
+
+    <ImageView
+        android:id="@+id/sregister_animeme_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/sregister_email_edittext"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_chainStyle="spread"
+        app:srcCompat="@drawable/icon_animeme_red" />
+
+    <TextView
+        android:id="@+id/sregister_email_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sregister_email_text"
+        android:textColor="#BDB4B4"
+        app:layout_constraintEnd_toStartOf="@id/sregister_email_edittext"
+        app:layout_constraintTop_toTopOf="@id/sregister_email_edittext"
+        app:layout_constraintBottom_toBottomOf="@id/sregister_email_edittext"/>
+
+    <EditText
+        android:id="@+id/sregister_email_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="email"
+        android:inputType="textEmailAddress"
+        android:textAlignment="viewStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sregister_animeme_logo"
+        app:layout_constraintBottom_toTopOf="@id/sregister_id_edittext"/>
+
+    <TextView
+        android:id="@+id/sregister_id_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sregister_id_text"
+        android:textColor="#BDB4B4"
+        app:layout_constraintEnd_toStartOf="@id/sregister_id_edittext"
+        app:layout_constraintTop_toTopOf="@id/sregister_id_edittext"
+        app:layout_constraintBottom_toBottomOf="@id/sregister_id_edittext" />
+
+    <EditText
+        android:id="@+id/sregister_id_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="6~8 characters"
+        android:inputType="textPersonName"
+        android:textAlignment="viewStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sregister_email_edittext"
+        app:layout_constraintBottom_toTopOf="@id/sregister_password_edittext" />
+
+    <TextView
+        android:id="@+id/sregister_password_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sregister_password_text"
+        android:textColor="#BDB4B4"
+        app:layout_constraintEnd_toStartOf="@id/sregister_password_edittext"
+        app:layout_constraintTop_toTopOf="@id/sregister_password_edittext"
+        app:layout_constraintBottom_toBottomOf="@id/sregister_password_edittext" />
+
+    <EditText
+        android:id="@+id/sregister_password_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="6~8 characters"
+        android:inputType="textPassword"
+        android:textAlignment="viewStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sregister_id_edittext"
+        app:layout_constraintBottom_toTopOf="@id/sregister_cpassword_edittext" />
+
+    <TextView
+        android:id="@+id/sregister_cpassword_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sregister_cpassword_text"
+        android:textColor="#BDB4B4"
+        app:layout_constraintEnd_toStartOf="@id/sregister_cpassword_edittext"
+        app:layout_constraintTop_toTopOf="@id/sregister_cpassword_edittext"
+        app:layout_constraintBottom_toBottomOf="@id/sregister_cpassword_edittext" />
+
+    <EditText
+        android:id="@+id/sregister_cpassword_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="6~8 characters"
+        android:inputType="textPassword"
+        android:textAlignment="viewStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sregister_password_edittext"
+        app:layout_constraintBottom_toTopOf="@id/sregister_register_button" />
+
+    <Button
+        android:id="@+id/sregister_register_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/sregister_button_register_text"
+        app:layout_constraintTop_toBottomOf="@id/sregister_cpassword_edittext"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginLeft="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginRight="30dp"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -48,4 +48,26 @@
     <string name="show_result_confirm">SAVE</string>
     <string name="show_result_cancel">CANCEL</string>
     <string name="show_result_pic_saved">Picture saved.</string>
+    <string name="register_button_text">Register</string>
+    <string name="register_button_login_text">Login</string>
+    <string name="register_note_text">Already registered? You may login directly.</string>
+    <string name="register_retrieve_text">Forget password? Click here.</string>
+    <string name="register_actionbar_title">Register</string>
+    <string name="lobby_already_login">You\'ve already registered.</string>
+    <string name="sregister_id_text">id:</string>
+    <string name="sregister_password_text">Password:</string>
+    <string name="sregister_cpassword_text">Confrim\nPassword:</string>
+    <string name="sregister_email_text">email:</string>
+    <string name="sregister_button_register_text">Rigister</string>
+    <string name="sregister_actionbar_title">Start Register</string>
+    <string name="login_id_text">id:</string>
+    <string name="login_password_text">Password:</string>
+    <string name="login_text">Login</string>
+    <string name="login_actionbar_title">Login</string>
+    <string name="retrieve_email_text">email:</string>
+    <string name="retrieve_emial_previous">Please enter previous registered email</string>
+    <string name="retrieve_previous_password">Retrieve privious password</string>
+    <string name="retrieve_email_warning">Please enter valid email.</string>
+    <string name="email_did_not_exist_please_try_again">Email did not exist, please try again.</string>
+    <string name="password_sent_to_email">Login id had already sent to email. Please login with them.</string>
 </resources>
