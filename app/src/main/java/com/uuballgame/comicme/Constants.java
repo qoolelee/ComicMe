@@ -2,6 +2,7 @@ package com.uuballgame.comicme;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -13,32 +14,31 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 
-import androidx.core.content.ContextCompat;
+import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Constants {
     public static String TOKEN = "";
-    public static AllComicFiltersFragment.NewUUID NEW_UUID;
+    public static NewUsername NEW_USERNAME;
     public static Boolean PRO_USER = false;
 
     public static final String SERVER_IP = "https://kooler.com.tw";
     public static final String GET_NEW_UUID_URL = SERVER_IP + "/ComicMe/Api/getNewUUID.php";
     public static final String LOGIN_URL = SERVER_IP + "/ComicMe/Api/login.php";
+    public static final String REFRESH_TOKEN_URL = SERVER_IP + "/ComicMe/Api/refreshToken.php";
     public static final String GET_FILTERS_DATA_LIST_URL = SERVER_IP + "/ComicMe/Api/getComicFiltersList.php";
     public static final String IMAGE_UPLOAD_PHP_URL = SERVER_IP + "/ComicMe/Api/uploadImage.php";
     public static final String START_PICTURE_PROCESS_URL = SERVER_IP + "/ComicMe/Api/startImageProcess.php";
     public static final String RETRIEVE_ID_PASSWORD_URL = SERVER_IP + "/ComicMe/Api/retrieveIdPassword.php";
+    public static final String REGISTER_URL = SERVER_IP + "/ComicMe/Api/register.php";
 
     public static List<ComicFilter> COMIC_FILTERS_LIST = new ArrayList<>();
     public static List<ComicFilter> COMIC_FILTERS_HISTORICAL = new ArrayList<>();
@@ -166,6 +166,15 @@ public class Constants {
             e.printStackTrace();
             return null; // it will return null
         }
+    }
+
+    public static void saveToLocalPref(Context context, String tag, NewUsername newUsername) {
+        Gson gson = new Gson();
+        String str = gson.toJson(newUsername);
+        SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.comic_me_app), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(tag, str);
+        editor.apply();
     }
 
 }

@@ -34,12 +34,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="email"
+        android:textColorHint="@color/grey"
         android:inputType="textEmailAddress"
         android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/sregister_id_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sregister_animeme_logo"
-        app:layout_constraintBottom_toTopOf="@id/sregister_id_edittext"/>
+        app:layout_constraintTop_toBottomOf="@id/sregister_animeme_logo" />
 
     <TextView
         android:id="@+id/sregister_id_textview"
@@ -57,12 +59,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="6~8 characters"
+        android:textColorHint="@color/grey"
         android:inputType="textPersonName"
         android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/sregister_password_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sregister_email_edittext"
-        app:layout_constraintBottom_toTopOf="@id/sregister_password_edittext" />
+        app:layout_constraintTop_toBottomOf="@id/sregister_email_edittext" />
 
     <TextView
         android:id="@+id/sregister_password_textview"
@@ -80,12 +84,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="6~8 characters"
+        android:textColorHint="@color/grey"
         android:inputType="textPassword"
         android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/sregister_cpassword_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sregister_id_edittext"
-        app:layout_constraintBottom_toTopOf="@id/sregister_cpassword_edittext" />
+        app:layout_constraintTop_toBottomOf="@id/sregister_id_edittext" />
 
     <TextView
         android:id="@+id/sregister_cpassword_textview"
@@ -103,12 +109,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="6~8 characters"
+        android:textColorHint="@color/grey"
         android:inputType="textPassword"
         android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/sregister_register_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sregister_password_edittext"
-        app:layout_constraintBottom_toTopOf="@id/sregister_register_button" />
+        app:layout_constraintTop_toBottomOf="@id/sregister_password_edittext" />
 
     <Button
         android:id="@+id/sregister_register_button"

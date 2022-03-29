@@ -36,10 +36,11 @@
         android:hint="email"
         android:inputType="textPersonName"
         android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/login_password_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_animeme_logo"
-        app:layout_constraintBottom_toTopOf="@id/login_password_edittext"/>
+        app:layout_constraintTop_toBottomOf="@id/login_animeme_logo" />
 
     <TextView
         android:id="@+id/login_password_textview"
@@ -59,10 +60,11 @@
         android:hint="6~8 characters"
         android:inputType="textPassword"
         android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/login_login_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_id_edittext"
-        app:layout_constraintBottom_toTopOf="@id/login_login_button" />
+        app:layout_constraintTop_toBottomOf="@id/login_id_edittext" />
 
     <Button
         android:id="@+id/login_login_button"

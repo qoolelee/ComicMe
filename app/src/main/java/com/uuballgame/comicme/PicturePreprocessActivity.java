@@ -79,7 +79,7 @@ public class PicturePreprocessActivity extends AppCompatActivity {
     private ImageButton okButton;
     private ImageButton noButton;
     private View.OnClickListener okListener, noListener;
-    private static final String CROPPED_FILE_NAME = "img_" + Constants.NEW_UUID.uuid + "_";
+    private static final String CROPPED_FILE_NAME = "img_" + Constants.NEW_USERNAME.username + "_";
     private static final int NORMALIZED_PIC_WIDTH = 512;
 
     @Override

@@ -38,7 +38,7 @@
     <string name="delete_this_picture">Delete this picture?</string>
     <string name="image_detailed_cancel">Cancel</string>
     <string name="picture_process_uploading">Uploading...</string>
-    <string name="server_maintain_please_try_again">Serer maintain, please try again.</string>
+    <string name="server_maintain_please_try_again">Server maintain, please try again.</string>
     <string name="image_detailed_error08">Server processed error, please try again.</string>
     <string name="picture_process_processing">Processing...</string>
     <string name="show_detail_buy_no_watermark">Buy pro for water mark removed</string>
@@ -70,4 +70,10 @@
     <string name="retrieve_email_warning">Please enter valid email.</string>
     <string name="email_did_not_exist_please_try_again">Email did not exist, please try again.</string>
     <string name="password_sent_to_email">Login id had already sent to email. Please login with them.</string>
+    <string name="login_error_no_id_password">No input error, please try again.</string>
+    <string name="login_invalid_user">User id or password incorrect. \nPlease try again.</string>
+    <string name="refresh_access_denied">The account is logged in by other people.</string>
+    <string name="sregister_error_input">There\'s input error, please re-enter.</string>
+    <string name="sregister_register_fail">There\'s already same user id, please try again.</string>
+    <string name="sregister_register_success">Register succeed, please login.</string>
 </resources>
